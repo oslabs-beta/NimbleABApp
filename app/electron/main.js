@@ -5,19 +5,19 @@ const {
   session,
   ipcMain,
   Menu,
-} = require('electron');
+} = require("electron");
 const {
   default: installExtension,
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
-} = require('electron-devtools-installer');
+} = require("electron-devtools-installer");
 
-const Protocol = require('./protocol');
-const MenuBuilder = require('./menu');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const isDev = process.env.NODE_ENV === 'development';
+const Protocol = require("./protocol");
+const MenuBuilder = require("./menu");
+const path = require("path");
+const fs = require("fs");
+const crypto = require("crypto");
+const isDev = process.env.NODE_ENV === "development";
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
 
@@ -36,7 +36,7 @@ async function createWindow() {
   win = new BrowserWindow({
     width: 1000,
     height: 800,
-    title: 'Application is starting up...',
+    title: "Application is starting up...",
     webPreferences: {
       devTools: isDev,
       nodeIntegration: false,
@@ -44,7 +44,7 @@ async function createWindow() {
       nodeIntegrationInSubFrames: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      disableBlinkFeatures: 'Auxclick',
+      disableBlinkFeatures: "Auxclick",
     },
   });
 
@@ -54,31 +54,31 @@ async function createWindow() {
     win.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
-  win.webContents.on('did-finish-load', () => {
+  win.webContents.on("did-finish-load", () => {
     win.setTitle(
       `Getting started with electron-template (v${app.getVersion()})`
     );
   });
 
   if (isDev) {
-    // win.webContents.once('dom-ready', async () => {
-    //   await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
-    //     .then((name) => console.log(`Added Extension ${name}`))
-    //     .catch((err) => console.log('An error occured: ', err))
-    //     .finally(() => {
-    //       win.webContents.openDevTools();
-    //     });
-    // });
+    win.webContents.once("dom-ready", async () => {
+      await installExtension([REDUX_DEVTOOLS])
+        .then((name) => console.log(`Added Extension ${name}`))
+        .catch((err) => console.log("An error occured: ", err))
+        .finally(() => {
+          win.webContents.openDevTools();
+        });
+    });
   }
 
   //Emits when window is closed
-  win.on('closed', () => {
+  win.on("closed", () => {
     win = null;
   });
 
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
   const ses = session;
-  const partition = 'default';
+  const partition = "default";
   ses
     .fromPartition(
       partition
@@ -119,18 +119,18 @@ protocol.registerSchemesAsPrivileged([
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on("ready", createWindow);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
+app.on("window-all-closed", () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
-app.on('activate', () => {
+app.on("activate", () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
@@ -139,8 +139,8 @@ app.on('activate', () => {
 });
 
 // https://electronjs.org/docs/tutorial/security#12-disable-or-limit-navigation
-app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (contentsEvent, navigationUrl) => {
+app.on("web-contents-created", (event, contents) => {
+  contents.on("will-navigate", (contentsEvent, navigationUrl) => {
     /* eng-disable LIMIT_NAVIGATION_JS_CHECK  */
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [selfHost];
@@ -155,7 +155,7 @@ app.on('web-contents-created', (event, contents) => {
     }
   });
 
-  contents.on('will-redirect', (contentsEvent, navigationUrl) => {
+  contents.on("will-redirect", (contentsEvent, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [];
 
@@ -171,7 +171,7 @@ app.on('web-contents-created', (event, contents) => {
 
   // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
   contents.on(
-    'will-attach-webview',
+    "will-attach-webview",
     (contentsEvent, webPreferences, params) => {
       // Disable Node.js integration
       webPreferences.nodeIntegration = false;
@@ -192,12 +192,12 @@ app.on('web-contents-created', (event, contents) => {
       );
 
       return {
-        action: 'deny',
+        action: "deny",
       };
     }
 
     return {
-      action: 'allow',
+      action: "allow",
     };
   });
 });
