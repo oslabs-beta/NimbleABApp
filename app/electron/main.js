@@ -42,9 +42,9 @@ async function createWindow() {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
       nodeIntegrationInSubFrames: false,
-      contextIsolation: true,
+      // contextIsolation: true,
       enableRemoteModule: false,
-      disableBlinkFeatures: "Auxclick",
+      // disableBlinkFeatures: "Auxclick",
     },
   });
 
