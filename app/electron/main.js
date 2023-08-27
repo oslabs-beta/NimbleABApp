@@ -47,6 +47,8 @@ async function createWindow() {
       // disableBlinkFeatures: "Auxclick",
     },
   });
+  //set initial background color
+  // win.setBackgroundColor('');
 
   if (isDev) {
     win.loadURL(selfHost);

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router';
-import { paths, pathNames } from '../constants/routes.js';
+import { pathNames } from '../constants/routes';
 import loadable from '@loadable/component';
+import { BrowserRouter } from 'react-router-dom';
 
 // Load bundles asynchronously so that the initial render happens faster
 
@@ -12,9 +13,11 @@ const Home = loadable(
 
 const AppRoutes = (): React.JSX.Element => {
   return (
-    <Routes>
-      <Route path={pathNames.HOME} element={<Home />}></Route>
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path={pathNames.HOME} element={<Home />}></Route>
+      </Routes>
+    </BrowserRouter>
   );
 };
 

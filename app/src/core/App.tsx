@@ -1,11 +1,18 @@
 import React from 'react';
 import { HistoryRouter } from 'redux-first-history/rr6';
-const App: React.FC = () => {
+import AppRoutes from './routes';
+import { BrowserRouter } from 'react-router-dom';
+// import { Store } from 'redux';
+
+const App = () => {
   return (
     <>
-      <Provider store={store}>
-        <HistoryRouter history={history}></HistoryRouter>
-      </Provider>
+      {/* <Provider store={store}> */}
+      {/* <Nav></Nav> */}
+
+      <AppRoutes></AppRoutes>
+
+      {/* </Provider> */}
     </>
   );
 };
