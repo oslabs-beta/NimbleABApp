@@ -1,5 +1,5 @@
 export const pathNames: paths = {
-  WELCOME: '/',
+  HOME: '/',
   ABOUT: '/about',
   MOTD: '/motd',
   LOCALIZATION: '/localization',
@@ -9,7 +9,7 @@ export const pathNames: paths = {
 };
 
 export type paths = {
-  WELCOME: string;
+  HOME: string;
   ABOUT: string;
   MOTD: string;
   LOCALIZATION: string;

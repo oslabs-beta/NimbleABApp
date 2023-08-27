@@ -1,9 +1,11 @@
 import React from 'react';
-
+import { HistoryRouter } from 'redux-first-history/rr6';
 const App: React.FC = () => {
   return (
     <>
-      <p className="bg-gray-500 text-center text-white">Hello World</p>
+      <Provider store={store}>
+        <HistoryRouter history={history}></HistoryRouter>
+      </Provider>
     </>
   );
 };
