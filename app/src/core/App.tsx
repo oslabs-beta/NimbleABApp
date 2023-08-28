@@ -1,13 +1,19 @@
-import React from "react";
-import TestingConfig from "../pages/config/Config";
+import React from 'react';
+import { HistoryRouter } from 'redux-first-history/rr6';
+import AppRoutes from './routes';
+import { BrowserRouter } from 'react-router-dom';
+// import { Store } from 'redux';
 
-import { BrowserRouter, Routes, Router, Route } from "react-router-dom";
-const App: React.FC = () => {
+const App = () => {
   return (
-    <BrowserRouter>
-      <p className="bg-gray-500 text-center text-white">Hello World</p>
-      <TestingConfig></TestingConfig>
-    </BrowserRouter>
+    <>
+      {/* <Provider store={store}> */}
+      {/* <Nav></Nav> */}
+
+      <AppRoutes></AppRoutes>
+
+      {/* </Provider> */}
+    </>
   );
 };
 export default App;
