@@ -122,6 +122,8 @@ async function createTextEditorModal() {
     width: 1000,
     height: 800,
     title: 'Application is starting up...',
+    parent: win,
+    modal: true,
     webPreferences: {
       devTools: isDev,
       nodeIntegration: false,
@@ -338,12 +340,11 @@ function handleGetExperiments() {
 }
 
 function handleCreateTextEditor() {
-  // createTextEditorModal();
-  console.log('hi');
-  return 'Hello';
+  createTextEditorModal();
+  // console.log('hi');
 }
 //Event Listeners for Client Side Actions
 ipcMain.handle('dialog:openFile', handleFileOpen);
 ipcMain.handle('directory:parsePaths', handleDirectoryPaths);
 ipcMain.handle('experiment:getExperiments', handleGetExperiments);
-ipcMain.handle('createModal', () => 'hello');
+ipcMain.handle('modal:createModal', handleCreateTextEditor);
