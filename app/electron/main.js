@@ -4,8 +4,10 @@ const {
   BrowserWindow,
   session,
   ipcMain,
+  dialog,
   Menu,
 } = require('electron');
+const Store = require('electron-store');
 const {
   default: installExtension,
   REDUX_DEVTOOLS,
@@ -17,6 +19,7 @@ const MenuBuilder = require('./menu');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const { parseConfigFileTextToJson } = require('typescript');
 const isDev = process.env.NODE_ENV === 'development';
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
@@ -25,6 +28,9 @@ const selfHost = `http://localhost:${port}`;
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 let menuBuilder;
+const store = new Store({
+  path: app.getPath('userData'),
+});
 
 async function createWindow() {
   //Add Autoupdating functionality here
@@ -42,8 +48,9 @@ async function createWindow() {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
       nodeIntegrationInSubFrames: false,
-      // contextIsolation: true,
+      contextIsolation: true,
       enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.ts'),
       // disableBlinkFeatures: "Auxclick",
     },
   });
@@ -119,7 +126,10 @@ protocol.registerSchemesAsPrivileged([
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+//init o
+app.whenReady().then(() => {
+  createWindow();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -201,3 +211,60 @@ app.on('web-contents-created', (event, contents) => {
     };
   });
 });
+
+//Choose Directory Functionality
+async function handleFileOpen() {
+  const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    properties: ['openDirectory'],
+  });
+  if (!canceled) {
+    store.set('directoryPath', filePaths[0]);
+    return path.basename(filePaths[0]);
+  }
+}
+
+//Gets all paths for Next Js Directory
+function handleDirectoryPaths() {
+  const dirPath = store.get('directoryPath');
+  console.log(dirPath);
+  const pathsArr = ['/'];
+  const fullPaths = [dirPath];
+  const map = { app: '/' };
+
+  //Recurses through directory only pulling acitve paths
+  // Can make this more refined by looking for only directories with page.jsx in it
+  function parsePaths(dirPath) {
+    const dirFiles = fs.readdirSync(dirPath);
+    // console.log(dirFiles);
+    for (const file of dirFiles) {
+      const stats = fs.statSync(path.join(dirPath, file));
+
+      // console.log(file);
+      if (stats.isDirectory()) {
+        if (file[0] === '(') {
+          parsePaths(path.join(dirPath, file));
+        } else {
+          if (map[file]) pathsArr.push(map[file]);
+          else pathsArr.push('/' + file);
+          fullPaths.push(dirPath + '/' + file);
+          parsePaths(path.join(dirPath, file));
+        }
+      }
+    }
+  }
+
+  parsePaths(dirPath);
+  store.set('dirPaths', fullPaths);
+  console.log(store.get('dirPaths'));
+  return pathsArr;
+}
+
+function handleGetExperiments() {
+  const experiments = store.get('experiments');
+  return experiments;
+}
+
+//Event Listeners for Client Side Actions
+ipcMain.handle('dialog:openFile', handleFileOpen);
+ipcMain.handle('directory:parsePaths', handleDirectoryPaths);
+ipcMain.handle('experiment:getExperiments', handleGetExperiments);

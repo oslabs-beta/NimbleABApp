@@ -1,11 +1,12 @@
 import React from "react";
-import TestingConfig from "../config/TestingConfig";
+import ExperimentCreate from "../../components/experimentCreate";
+import ActiveExperiment from "../../components/activeExperiments";
 
 const Home = (): React.JSX.Element => {
   return (
-    <div>
-      <h1>Welcome to Nimble AB!</h1>
-      <TestingConfig></TestingConfig>
+    <div className="h-screen w-full bg-primary flex p-10 gap-2 font-mono">
+      <ExperimentCreate></ExperimentCreate>
+      <ActiveExperiment></ActiveExperiment>
     </div>
   );
 };
