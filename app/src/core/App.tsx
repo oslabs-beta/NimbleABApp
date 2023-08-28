@@ -1,19 +1,19 @@
-import React from "react";
-import { HistoryRouter } from "redux-first-history/rr6";
-import AppRoutes from "./routes";
-import { BrowserRouter } from "react-router-dom";
-import Nav from "./nav";
-// import { Store } from 'redux';
+import React from 'react';
+
+import AppRoutes from './routes';
+
+import Nav from './nav';
+import { Provider } from 'react-redux';
+import { store } from '../redux/store';
 // import TestingConfig from "../pages/config/Config";
 
 const App = () => {
   return (
     <>
-      {/* <Provider store={store}> */}
-      <Nav></Nav>
-      <AppRoutes></AppRoutes>
-
-      {/* </Provider> */}
+      <Provider store={store}>
+        <Nav></Nav>
+        <AppRoutes></AppRoutes>
+      </Provider>
     </>
   );
 };
