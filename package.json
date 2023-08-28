@@ -23,6 +23,8 @@
   "dependencies": {
     "@loadable/component": "^5.15.2",
     "@reduxjs/toolkit": "^1.8.3",
+    "@supabase/supabase-js": "^2.33.1",
+    "axios": "^1.5.0",
     "electron-devtools-installer": "^3.2.0",
     "process": "^0.11.10",
     "react": "^18.2.0",
@@ -30,7 +32,8 @@
     "react-redux": "^8.0.2",
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
-    "redux": "^4.2.0"
+    "redux": "^4.2.0",
+    "supabase": "^1.88.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
