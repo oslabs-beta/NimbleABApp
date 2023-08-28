@@ -27,6 +27,10 @@ const selfHost = `http://localhost:${port}`;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+
+//window for variant editor modal
+let childWindow;
+
 let menuBuilder;
 const store = new Store({
   path: app.getPath('userData'),
@@ -107,6 +111,77 @@ async function createWindow() {
   //Uncomment this once menu is set up
 
   // menuBuilder = MenuBuilder(win, app.name);
+}
+
+//Function to create text editor modal
+async function createTextEditorModal() {
+  if (!isDev) {
+    protocol.registerBufferProtocol(Protocol.scheme, Protocol.requestHandler);
+  }
+  childWindow = new BrowserWindow({
+    width: 1000,
+    height: 800,
+    title: 'Application is starting up...',
+    parent: win,
+    modal: true,
+    webPreferences: {
+      devTools: isDev,
+      nodeIntegration: false,
+      nodeIntegrationInWorker: false,
+      nodeIntegrationInSubFrames: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.ts'),
+      // disableBlinkFeatures: "Auxclick",
+    },
+  });
+
+  if (isDev) {
+    childWindow.loadURL(selfHost);
+  } else {
+    childWindow.loadURL(`${Protocol.scheme}://rse/index.html`); //Might not work for production needs to fix
+  }
+
+  childWindow.webContents.on('did-finish-load', () => {
+    childWindow.setTitle(`Nimble Labs`);
+  });
+
+  if (isDev) {
+    childWindow.webContents.once('dom-ready', async () => {
+      await installExtension([REDUX_DEVTOOLS])
+        .then((name) => console.log(`Added Extension ${name}`))
+        .catch((err) => console.log('An error occured: ', err))
+        .finally(() => {
+          childWindow.webContents.openDevTools();
+        });
+    });
+  }
+
+  //Emits when window is closed
+  childWindow.on('closed', () => {
+    childWindow = null;
+  });
+
+  // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
+  const ses = session;
+  const partition = 'default';
+  ses
+    .fromPartition(
+      partition
+    ) /* eng-disable PERMISSION_REQUEST_HANDLER_JS_CHECK */
+    .setPermissionRequestHandler((webContents, permission, permCallback) => {
+      const allowedPermissions = []; // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
+
+      if (allowedPermissions.includes(permission)) {
+        permCallback(true); // Approve permission request
+      } else {
+        console.error(
+          `The application tried to request permission for '${permission}'. This permission was not whitelisted and has been blocked.`
+        );
+
+        permCallback(false); // Deny
+      }
+    });
 }
 
 // Needs to be called before app is ready;
@@ -264,7 +339,12 @@ function handleGetExperiments() {
   return experiments;
 }
 
+function handleCreateTextEditor() {
+  createTextEditorModal();
+  // console.log('hi');
+}
 //Event Listeners for Client Side Actions
 ipcMain.handle('dialog:openFile', handleFileOpen);
 ipcMain.handle('directory:parsePaths', handleDirectoryPaths);
 ipcMain.handle('experiment:getExperiments', handleGetExperiments);
+ipcMain.handle('modal:createModal', handleCreateTextEditor);
