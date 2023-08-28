@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import VariantRow from "./VariantRow";
+import CreateVariant from "./CreateVariant";
 // initialize Supabase client
 const supabaseUrl = "https://tawrifvzyjqcddwuqjyq.supabase.co";
 const supabaseKey =
@@ -49,19 +50,20 @@ const TestingConfig: React.FC = () => {
       {rows.map((VariantRow, index) => (
         <VariantRow index={index}></VariantRow>
       ))}
+      <CreateVariant></CreateVariant>
 
       <button
         className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
         onClick={handleAddRow}
       >
-        Add Row
+        Add Variant
       </button>
 
       <button
         className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
         onClick={handleSubmit}
       >
-        Submit
+        Submit Experiment
       </button>
 
       <button

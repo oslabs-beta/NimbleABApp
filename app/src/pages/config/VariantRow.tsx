@@ -1,10 +1,13 @@
 import React, { ChangeEvent, useState } from "react";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
+import CreateVariant from "./CreateVariant";
+import SubmitVariant from "./SubmitVariant";
 
 interface Row {
-  variant: string;
+  variantURL: string;
   weight: number;
+  deviceType: string;
 }
 
 interface RowProps {
@@ -14,29 +17,32 @@ interface RowProps {
 const VariantRow: React.FC<RowProps> = (props: RowProps) => {
   // set up state with the row's data
   const [thisRow, setThisRow] = useState<Row>({
-    variant: "",
+    variantURL: "",
     weight: 0,
+    deviceType: "",
   });
 
   const [isDestroyed, setIsDestroyed] = useState(false);
 
   // handle text change in the variant input
   const handleVariantChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { weight } = thisRow;
+    const { weight, deviceType } = thisRow;
     const text = e.target.value;
     setThisRow({
-      variant: text,
+      variantURL: text,
       weight: weight,
+      deviceType: deviceType,
     });
   };
 
   const handleWeightChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { variant } = thisRow;
+    const { variantURL, deviceType } = thisRow;
     const weight = parseFloat(e.target.value);
     if (!isNaN(weight)) {
       setThisRow({
-        variant: variant,
+        variantURL: variantURL,
         weight: weight,
+        deviceType: deviceType,
       });
     }
   };
@@ -57,7 +63,7 @@ const VariantRow: React.FC<RowProps> = (props: RowProps) => {
       <input
         type="text"
         placeholder="Variant URL"
-        value={thisRow.variant}
+        value={thisRow.variantURL}
         onChange={handleVariantChange}
       />
       <input
@@ -72,13 +78,11 @@ const VariantRow: React.FC<RowProps> = (props: RowProps) => {
       >
         Remove
       </button>
-
-      <button
-        className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-        onClick={handleSubmit}
-      >
-        Submit
-      </button>
+      <SubmitVariant
+        deviceType={thisRow.deviceType}
+        weight={thisRow.weight}
+        url={thisRow.variantURL}
+      ></SubmitVariant>
     </div>
   );
 };
