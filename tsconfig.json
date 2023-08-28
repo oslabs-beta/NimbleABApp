@@ -23,6 +23,8 @@
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true
+    // "emitDeclarationOnly": true
   },
-  "include": ["app/src"]
+  "include": ["app/src"],
+  "exclude": ["node_modules", "renderer.d.ts"]
 }
