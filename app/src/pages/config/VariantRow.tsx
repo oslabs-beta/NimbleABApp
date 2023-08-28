@@ -3,7 +3,6 @@ import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import CreateVariant from "./CreateVariant";
 import SubmitVariant from "./SubmitVariant";
-
 interface Row {
   variantURL: string;
   weight: number;
