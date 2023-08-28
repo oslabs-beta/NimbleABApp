@@ -1,9 +1,10 @@
-import React from 'react';
-import { HistoryRouter } from 'redux-first-history/rr6';
-import AppRoutes from './routes';
-import { BrowserRouter } from 'react-router-dom';
-import Nav from './nav';
+import React from "react";
+import { HistoryRouter } from "redux-first-history/rr6";
+import AppRoutes from "./routes";
+import { BrowserRouter } from "react-router-dom";
+import Nav from "./nav";
 // import { Store } from 'redux';
+// import TestingConfig from "../pages/config/Config";
 
 const App = () => {
   return (
