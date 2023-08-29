@@ -1,0 +1,17 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("jdbc:sqlite:/Users/jamesboswell/Nimble/NimbleABApp/nimbleStore.db")
+}
+
+model Experiment {
+  Experiment_ID Int @id @default (autoincrement())
+  Experiment_Name String
+  Device_Type String
+}

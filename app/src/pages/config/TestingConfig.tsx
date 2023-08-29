@@ -3,6 +3,7 @@ import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import VariantRow from "./VariantRow";
 import CreateVariant from "./CreateVariant";
+import { PrismaClient } from "@prisma/client";
 // initialize Supabase client
 const supabaseUrl = "https://tawrifvzyjqcddwuqjyq.supabase.co";
 const supabaseKey =
@@ -45,12 +46,29 @@ const TestingConfig: React.FC = () => {
     }
   };
 
+  /// functionality
+
+  // check to see if existing experiment exists. Use the sqlLite storage to do this
+
+  // if exists display at top
+
   return (
     <div className="h-screen w-full bg-primary flex p-10 gap-2 font-mono">
+      {/* <form>
+        <label htmlFor="name">Name:</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+        />
+      </form>
+      <p>Name: {formData.name}</p>
       {rows.map((VariantRow, index) => (
         <VariantRow index={index}></VariantRow>
       ))}
-      <CreateVariant></CreateVariant>
+      <CreateVariant></CreateVariant> */}
 
       <button
         className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
