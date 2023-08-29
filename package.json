@@ -6,6 +6,31 @@
   "author": "Team JAZ",
   "license": "MIT",
   "types": "./index.d.ts",
+  "build": {
+    "productName": "NimbleAB",
+    "appId": "com.Nimble|electron.NimbleAB",
+    "directories": {
+      "buildResources": "resources"
+    },
+    "files": [
+      "app/dist/**/*",
+      "app/electron/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "msi"
+      ]
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "rpm",
+        "snap",
+        "AppImage"
+      ]
+    }
+  },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "audit-app": "npx electronegativity -i ./ -x LimitNavigationGlobalCheck,PermissionRequestHandlerGlobalCheck",
@@ -18,7 +43,7 @@
     "dist-mac": "npm run test && npm run prod-build && electron-builder --mac",
     "dist-linux": "npm run test && npm run prod-build && electron-builder --linux",
     "dist-windows": "npm run prod-build && electron-builder --windows",
-    "dist-all": "npm run test && npm run prod-build && electron-builder --mac --linux --windows",
+    "dist-all": "npm run prod-build && electron-builder install-app-deps && electron-builder --mac --linux --windows",
     "test": "mocha"
   },
   "dependencies": {
@@ -28,6 +53,9 @@
     "@mui/material": "^5.14.6",
     "@reduxjs/toolkit": "^1.8.3",
     "@supabase/supabase-js": "^2.33.1",
+    "@types/loadable__component": "^5.13.4",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.0.6",
     "axios": "^1.5.0",
     "easy-redux-undo": "^1.0.5",
     "electron-devtools-installer": "^3.2.0",
@@ -43,7 +71,8 @@
     "react-router-dom": "^6.3.0",
     "redux": "^4.2.0",
     "redux-first-history": "^5.1.1",
-    "supabase": "^1.88.0"
+    "supabase": "^1.88.0",
+    "typescript": "^4.9.5"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
@@ -54,7 +83,7 @@
     "@babel/preset-typescript": "^7.18.6",
     "@doyensec/electronegativity": "^1.9.1",
     "@types/loadable__component": "^5.13.4",
-    "@types/react": "^18.0.15",
+    "@types/react": "^18.2.21",
     "@types/react-dom": "^18.0.6",
     "autoprefixer": "^10.4.15",
     "babel-loader": "^8.2.5",
@@ -84,7 +113,7 @@
     "stream-browserify": "^3.0.0",
     "style-loader": "^3.3.3",
     "tailwindcss": "^3.3.3",
-    "typescript": "4.7.4",
+    "typescript": "^4.9.5",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.9.3",

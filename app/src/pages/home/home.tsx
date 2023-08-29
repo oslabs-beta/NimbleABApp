@@ -1,9 +1,9 @@
-import React from 'react';
-import ExperimentCreate from '../../components/experimentCreate';
-import ActiveExperiment from '../../components/activeExperiments';
-import { Link } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
-import { IElectronAPI } from '../../../renderer';
+import React from "react";
+import ExperimentCreate from "../../components/experimentCreate";
+import ActiveExperiment from "../../components/activeExperiments";
+import { Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { IElectronAPI } from "../../../../renderer";
 
 const Home = (): React.JSX.Element => {
   async function handleModal() {

@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router";
 import { pathNames } from "../constants/routes";
 import loadable from "@loadable/component";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 
 // Load bundles asynchronously so that the initial render happens faster
 
@@ -15,7 +15,7 @@ const TestingConfig = loadable(() => import("../pages/config/TestingConfig"));
 
 const AppRoutes = (): React.JSX.Element => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path={pathNames.HOME} element={<Home />}></Route>
         <Route
@@ -23,7 +23,7 @@ const AppRoutes = (): React.JSX.Element => {
           element={<TestingConfig />}
         ></Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 

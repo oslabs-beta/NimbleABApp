@@ -8,7 +8,7 @@ const path = require("path");
 
 module.exports = merge(base, {
   mode: "production",
-  devtool: false,
+  devtool: "source-map",
   plugins: [
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
@@ -27,4 +27,3 @@ module.exports = merge(base, {
     ],
   },
 });
-s;
