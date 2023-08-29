@@ -72,8 +72,11 @@
     "react-router-dom": "^6.3.0",
     "redux": "^4.2.0",
     "redux-first-history": "^5.1.1",
+    "reflect-metadata": "^0.1.13",
     "sqlite": "^5.0.1",
+    "sqlite3": "^5.1.6",
     "supabase": "^1.88.0",
+    "typeorm": "^0.3.17",
     "typescript": "^4.9.5"
   },
   "devDependencies": {
@@ -85,6 +88,7 @@
     "@babel/preset-typescript": "^7.18.6",
     "@doyensec/electronegativity": "^1.9.1",
     "@types/loadable__component": "^5.13.4",
+    "@types/node": "^20.5.7",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.0.6",
     "autoprefixer": "^10.4.15",

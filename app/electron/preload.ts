@@ -5,5 +5,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   parsePaths: () => ipcRenderer.invoke("directory:parsePaths"),
   getExperiments: () => ipcRenderer.invoke("experiment:getExperiments"),
   createModal: () => ipcRenderer.invoke("modal:createModal"),
-  addExperiment: () => ipcRenderer.invoke("database:addExperiment"),
+  addExperiment: (experiment) =>
+    ipcRenderer.invoke("database:addExperiment", experiment),
 });

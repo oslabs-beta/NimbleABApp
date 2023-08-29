@@ -57,6 +57,7 @@ const TestingConfig: React.FC = () => {
 
   const handleExpSubmit = async () => {
     if (experimentName) await window.electronAPI.addExperiment(experimentName);
+    // await window.electronAPI.addExperiment("new Experiment");
     else alert("experiment must have a name");
   };
 
@@ -64,7 +65,13 @@ const TestingConfig: React.FC = () => {
     <div className="h-screen w-full bg-primary flex p-10 gap-2 font-mono">
       <form>
         <label htmlFor="name">Name:</label>
-        <input type="text" id="name" name="name" value={FormData.name} />
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value={experimentName}
+          onChange={handleExperienceInput}
+        />
         <button onClick={handleExpSubmit}>Submit experiment name</button>
       </form>
       <p>Name: {FormData.name}</p>

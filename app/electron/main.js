@@ -15,6 +15,8 @@ const {
 } = require("electron-devtools-installer");
 
 const prisma = require("./prisma.ts");
+const reflect = require("reflect-metadata");
+
 const Protocol = require("./protocol");
 const MenuBuilder = require("./menu");
 const path = require("path");
@@ -341,9 +343,10 @@ function handleGetExperiments() {
 }
 
 // takes an experiment object
-async function handleAddExperiment(experiment) {
+async function handleAddExperiment(event, experiment) {
+  console.log(experiment);
   try {
-    const newExperiment = await prisma.experiment.create({
+    const newExperiment = await prisma.experiments.create({
       data: {
         Experiment_Name: experiment,
         Device_Type: "Desktop",
@@ -351,7 +354,12 @@ async function handleAddExperiment(experiment) {
     });
     console.log("New experiment created");
   } catch (error) {
-    console.error("Error creating experiment ", error);
+    console.error(
+      "Error creating experiment with name ",
+      experiment,
+      "error message: ",
+      error
+    );
   }
 }
 
