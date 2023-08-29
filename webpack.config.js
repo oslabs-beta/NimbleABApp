@@ -5,10 +5,10 @@ const path = require('path');
 
 module.exports = {
   target: 'web', // Our app can run without electron
-  entry: ['./app/src/index.js'], // The entry point of our app; these entry points can be named and we can also have multiple if we'd like to split the webpack bundle into smaller files to improve script loading speed between multiple pages of our app
+  entry: { home: './app/src/index.js', modal: './app/src/modal/index.js' }, // The entry point of our app; these entry points can be named and we can also have multiple if we'd like to split the webpack bundle into smaller files to improve script loading speed between multiple pages of our app
   output: {
     path: path.resolve(__dirname, 'app/dist'), // Where all the output files get dropped after webpack is done with them
-    filename: 'bundle.js', // The name of the webpack bundle that's generated
+    filename: '[name].js', // The name of the webpack bundle that's generated
   },
   resolve: {
     fallback: {
