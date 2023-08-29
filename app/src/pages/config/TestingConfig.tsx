@@ -46,7 +46,7 @@ const TestingConfig: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="h-screen w-full bg-primary flex p-10 gap-2 font-mono">
       {rows.map((VariantRow, index) => (
         <VariantRow index={index}></VariantRow>
       ))}

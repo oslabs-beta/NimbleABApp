@@ -71,6 +71,7 @@
     "react-router-dom": "^6.3.0",
     "redux": "^4.2.0",
     "redux-first-history": "^5.1.1",
+    "sqlite": "^5.0.1",
     "supabase": "^1.88.0",
     "typescript": "^4.9.5"
   },
