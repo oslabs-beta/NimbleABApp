@@ -6,21 +6,21 @@ const {
   ipcMain,
   dialog,
   Menu,
-} = require("electron");
-const Store = require("electron-store");
+} = require('electron');
+const Store = require('electron-store');
 const {
   default: installExtension,
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
-} = require("electron-devtools-installer");
+} = require('electron-devtools-installer');
 
-const Protocol = require("./protocol");
-const MenuBuilder = require("./menu");
-const path = require("path");
-const fs = require("fs");
-const crypto = require("crypto");
-const { parseConfigFileTextToJson } = require("typescript");
-const isDev = process.env.NODE_ENV === "development";
+const Protocol = require('./protocol');
+const MenuBuilder = require('./menu');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const { parseConfigFileTextToJson } = require('typescript');
+const isDev = process.env.NODE_ENV === 'development';
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
 
@@ -33,7 +33,7 @@ let childWindow;
 
 let menuBuilder;
 const store = new Store({
-  path: app.getPath("userData"),
+  path: app.getPath('userData'),
 });
 
 async function createWindow() {
@@ -46,7 +46,7 @@ async function createWindow() {
   win = new BrowserWindow({
     width: 1000,
     height: 800,
-    title: "Application is starting up...",
+    title: 'Application is starting up...',
     webPreferences: {
       devTools: true,
       nodeIntegration: false,
@@ -54,7 +54,7 @@ async function createWindow() {
       nodeIntegrationInSubFrames: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, "preload.ts"),
+      preload: path.join(__dirname, 'preload.ts'),
       // disableBlinkFeatures: "Auxclick",
     },
   });
@@ -67,15 +67,15 @@ async function createWindow() {
     win.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
-  win.webContents.on("did-finish-load", () => {
+  win.webContents.on('did-finish-load', () => {
     win.setTitle(`Nimble Labs`);
   });
 
   if (isDev) {
-    win.webContents.once("dom-ready", async () => {
+    win.webContents.once('dom-ready', async () => {
       await installExtension([REDUX_DEVTOOLS])
         .then((name) => console.log(`Added Extension ${name}`))
-        .catch((err) => console.log("An error occured: ", err))
+        .catch((err) => console.log('An error occured: ', err))
         .finally(() => {
           win.webContents.openDevTools();
         });
@@ -83,13 +83,13 @@ async function createWindow() {
   }
 
   //Emits when window is closed
-  win.on("closed", () => {
+  win.on('closed', () => {
     win = null;
   });
 
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
   const ses = session;
-  const partition = "default";
+  const partition = 'default';
   ses
     .fromPartition(
       partition
@@ -121,7 +121,7 @@ async function createTextEditorModal() {
   childWindow = new BrowserWindow({
     width: 1000,
     height: 800,
-    title: "Application is starting up...",
+    title: 'Application is starting up...',
     parent: win,
     modal: true,
     webPreferences: {
@@ -131,7 +131,7 @@ async function createTextEditorModal() {
       nodeIntegrationInSubFrames: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, "preload.ts"),
+      preload: path.join(__dirname, 'preload.ts'),
       // disableBlinkFeatures: "Auxclick",
     },
   });
@@ -139,18 +139,18 @@ async function createTextEditorModal() {
   if (isDev) {
     childWindow.loadURL(selfHost);
   } else {
-    childWindow.loadURL(`${Protocol.scheme}://rse/index.html`); //Might not work for production needs to fix
+    childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`); //Might not work for production needs to fix
   }
 
-  childWindow.webContents.on("did-finish-load", () => {
+  childWindow.webContents.on('did-finish-load', () => {
     childWindow.setTitle(`Nimble Labs`);
   });
 
   if (isDev) {
-    childWindow.webContents.once("dom-ready", async () => {
+    childWindow.webContents.once('dom-ready', async () => {
       await installExtension([REDUX_DEVTOOLS])
         .then((name) => console.log(`Added Extension ${name}`))
-        .catch((err) => console.log("An error occured: ", err))
+        .catch((err) => console.log('An error occured: ', err))
         .finally(() => {
           childWindow.webContents.openDevTools();
         });
@@ -158,13 +158,13 @@ async function createTextEditorModal() {
   }
 
   //Emits when window is closed
-  childWindow.on("closed", () => {
+  childWindow.on('closed', () => {
     childWindow = null;
   });
 
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
   const ses = session;
-  const partition = "default";
+  const partition = 'default';
   ses
     .fromPartition(
       partition
@@ -207,15 +207,15 @@ app.whenReady().then(() => {
 });
 
 // Quit when all windows are closed.
-app.on("window-all-closed", () => {
+app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== "darwin") {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on("activate", () => {
+app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
@@ -224,8 +224,8 @@ app.on("activate", () => {
 });
 
 // https://electronjs.org/docs/tutorial/security#12-disable-or-limit-navigation
-app.on("web-contents-created", (event, contents) => {
-  contents.on("will-navigate", (contentsEvent, navigationUrl) => {
+app.on('web-contents-created', (event, contents) => {
+  contents.on('will-navigate', (contentsEvent, navigationUrl) => {
     /* eng-disable LIMIT_NAVIGATION_JS_CHECK  */
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [selfHost];
@@ -240,7 +240,7 @@ app.on("web-contents-created", (event, contents) => {
     }
   });
 
-  contents.on("will-redirect", (contentsEvent, navigationUrl) => {
+  contents.on('will-redirect', (contentsEvent, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [];
 
@@ -256,7 +256,7 @@ app.on("web-contents-created", (event, contents) => {
 
   // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
   contents.on(
-    "will-attach-webview",
+    'will-attach-webview',
     (contentsEvent, webPreferences, params) => {
       // Disable Node.js integration
       webPreferences.nodeIntegration = false;
@@ -277,12 +277,12 @@ app.on("web-contents-created", (event, contents) => {
       );
 
       return {
-        action: "deny",
+        action: 'deny',
       };
     }
 
     return {
-      action: "allow",
+      action: 'allow',
     };
   });
 });
@@ -290,21 +290,21 @@ app.on("web-contents-created", (event, contents) => {
 //Choose Directory Functionality
 async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog(win, {
-    properties: ["openDirectory"],
+    properties: ['openDirectory'],
   });
   if (!canceled) {
-    store.set("directoryPath", filePaths[0]);
+    store.set('directoryPath', filePaths[0]);
     return path.basename(filePaths[0]);
   }
 }
 
 //Gets all paths for Next Js Directory
 function handleDirectoryPaths() {
-  const dirPath = store.get("directoryPath");
+  const dirPath = store.get('directoryPath');
   console.log(dirPath);
-  const pathsArr = ["/"];
+  const pathsArr = ['/'];
   const fullPaths = [dirPath];
-  const map = { app: "/" };
+  const map = { app: '/' };
 
   //Recurses through directory only pulling acitve paths
   // Can make this more refined by looking for only directories with page.jsx in it
@@ -316,12 +316,12 @@ function handleDirectoryPaths() {
 
       // console.log(file);
       if (stats.isDirectory()) {
-        if (file[0] === "(") {
+        if (file[0] === '(') {
           parsePaths(path.join(dirPath, file));
         } else {
           if (map[file]) pathsArr.push(map[file]);
-          else pathsArr.push("/" + file);
-          fullPaths.push(dirPath + "/" + file);
+          else pathsArr.push('/' + file);
+          fullPaths.push(dirPath + '/' + file);
           parsePaths(path.join(dirPath, file));
         }
       }
@@ -329,13 +329,13 @@ function handleDirectoryPaths() {
   }
 
   parsePaths(dirPath);
-  store.set("dirPaths", fullPaths);
-  console.log(store.get("dirPaths"));
+  store.set('dirPaths', fullPaths);
+  console.log(store.get('dirPaths'));
   return pathsArr;
 }
 
 function handleGetExperiments() {
-  const experiments = store.get("experiments");
+  const experiments = store.get('experiments');
   return experiments;
 }
 
@@ -344,7 +344,7 @@ function handleCreateTextEditor() {
   // console.log('hi');
 }
 //Event Listeners for Client Side Actions
-ipcMain.handle("dialog:openFile", handleFileOpen);
-ipcMain.handle("directory:parsePaths", handleDirectoryPaths);
-ipcMain.handle("experiment:getExperiments", handleGetExperiments);
-ipcMain.handle("modal:createModal", handleCreateTextEditor);
+ipcMain.handle('dialog:openFile', handleFileOpen);
+ipcMain.handle('directory:parsePaths', handleDirectoryPaths);
+ipcMain.handle('experiment:getExperiments', handleGetExperiments);
+ipcMain.handle('modal:createModal', handleCreateTextEditor);
