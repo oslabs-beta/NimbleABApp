@@ -345,6 +345,7 @@ function handleGetExperiments() {
 // takes an experiment object
 async function handleAddExperiment(event, experiment) {
   console.log(experiment);
+  const { experimentName, deviceType } = experiment;
   try {
     const newExperiment = await prisma.experiments.create({
       data: {
@@ -363,6 +364,74 @@ async function handleAddExperiment(event, experiment) {
   }
 }
 
+// async function handleAddRepo(event, repo) {
+//   console.log(repo);
+//   try {
+//     const newRepo = await prisma.repo.create({
+//       data: {
+//         Experiment_Name: experiment,
+//         Device_Type: "Desktop",
+//       },
+//     });
+//     console.log("New experiment created");
+//   } catch (error) {
+//     console.error(
+//       "Error creating experiment with name ",
+//       experiment,
+//       "error message: ",
+//       error
+//     );
+//   }
+// }
+
+async function handleAddVariant(event, variant) {
+  // destructure the variant object
+  console.log(variant);
+  const { filePath, weight, experimentId } = variant;
+  console.log(filePath);
+  console.log(weight);
+  console.log(experimentId);
+  // add to database
+  try {
+    const newVariant = await prisma.Variants.create({
+      data: {
+        filePath: filePath,
+        weights: weight,
+        Experiment_Id: experimentId,
+        // this is on the schema but may not be needed. For now a blank array
+      },
+    });
+    console.log("New variant added");
+  } catch (error) {
+    console.error(
+      "Error creating variant with data: ",
+      variant,
+      "error message: ",
+      error
+    );
+  }
+}
+
+async function handleGetVariants(event, experimentId) {
+  console.log("reached the getVariants function");
+  try {
+    const variants = await prisma.variants.findMany({
+      where: {
+        Experiment_Id: experimentId,
+      },
+    });
+    console.log(variants);
+    return JSON.stringify(variants);
+  } catch (error) {
+    console.error(
+      "Error creating variant with experimentID ",
+      experimentId,
+      "error message: ",
+      error
+    );
+  }
+}
+
 function handleCreateTextEditor() {
   createTextEditorModal();
   // console.log('hi');
@@ -374,3 +443,5 @@ ipcMain.handle("experiment:getExperiments", handleGetExperiments);
 ipcMain.handle("modal:createModal", handleCreateTextEditor);
 // database api
 ipcMain.handle("database:addExperiment", handleAddExperiment);
+ipcMain.handle("database:addVariant", handleAddVariant);
+ipcMain.handle("database:getVariants", handleGetVariants);

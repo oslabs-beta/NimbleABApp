@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useState, useContext, createContext } from "react";
+interface VariantProps {
+  experimentID: number;
+}
 
-const CreateVariant: React.FC = (props) => {
-  const createVariant = () => {
+const CreateVariant: React.FC<VariantProps> = (props) => {
+  const [variantPath, setVariantPath] = useState("");
+
+  // get the "repo" path
+
+  const createVariant = async () => {
+    const variant = {
+      filePath: variantPath,
+      experimentId: props.experimentID,
+    };
     console.log("insert the create variant code");
+
     return;
   };
 
