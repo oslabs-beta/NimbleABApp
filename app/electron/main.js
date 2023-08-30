@@ -4,27 +4,40 @@ const {
   BrowserWindow,
   session,
   ipcMain,
+  dialog,
   Menu,
-} = require('electron');
+} = require("electron");
+const Store = require("electron-store");
 const {
   default: installExtension,
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
-} = require('electron-devtools-installer');
+} = require("electron-devtools-installer");
 
-const Protocol = require('./protocol');
-const MenuBuilder = require('./menu');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const isDev = process.env.NODE_ENV === 'development';
+const prisma = require("./prisma.ts");
+const reflect = require("reflect-metadata");
+
+const Protocol = require("./protocol");
+const MenuBuilder = require("./menu");
+const path = require("path");
+const fs = require("fs");
+const crypto = require("crypto");
+const { parseConfigFileTextToJson } = require("typescript");
+const isDev = process.env.NODE_ENV === "development";
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+
+//window for variant editor modal
+let childWindow;
+
 let menuBuilder;
+const store = new Store({
+  path: app.getPath("userData"),
+});
 
 async function createWindow() {
   //Add Autoupdating functionality here
@@ -36,14 +49,15 @@ async function createWindow() {
   win = new BrowserWindow({
     width: 1000,
     height: 800,
-    title: 'Application is starting up...',
+    title: "Application is starting up...",
     webPreferences: {
-      devTools: isDev,
+      devTools: true,
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
       nodeIntegrationInSubFrames: false,
-      // contextIsolation: true,
+      contextIsolation: true,
       enableRemoteModule: false,
+      preload: path.join(__dirname, "preload.ts"),
       // disableBlinkFeatures: "Auxclick",
     },
   });
@@ -56,15 +70,15 @@ async function createWindow() {
     win.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
-  win.webContents.on('did-finish-load', () => {
+  win.webContents.on("did-finish-load", () => {
     win.setTitle(`Nimble Labs`);
   });
 
   if (isDev) {
-    win.webContents.once('dom-ready', async () => {
+    win.webContents.once("dom-ready", async () => {
       await installExtension([REDUX_DEVTOOLS])
         .then((name) => console.log(`Added Extension ${name}`))
-        .catch((err) => console.log('An error occured: ', err))
+        .catch((err) => console.log("An error occured: ", err))
         .finally(() => {
           win.webContents.openDevTools();
         });
@@ -72,13 +86,13 @@ async function createWindow() {
   }
 
   //Emits when window is closed
-  win.on('closed', () => {
+  win.on("closed", () => {
     win = null;
   });
 
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
   const ses = session;
-  const partition = 'default';
+  const partition = "default";
   ses
     .fromPartition(
       partition
@@ -102,6 +116,77 @@ async function createWindow() {
   // menuBuilder = MenuBuilder(win, app.name);
 }
 
+//Function to create text editor modal
+async function createTextEditorModal() {
+  if (!isDev) {
+    protocol.registerBufferProtocol(Protocol.scheme, Protocol.requestHandler);
+  }
+  childWindow = new BrowserWindow({
+    width: 1000,
+    height: 800,
+    title: "Application is starting up...",
+    parent: win,
+    modal: true,
+    webPreferences: {
+      devTools: isDev,
+      nodeIntegration: false,
+      nodeIntegrationInWorker: false,
+      nodeIntegrationInSubFrames: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, "preload.ts"),
+      // disableBlinkFeatures: "Auxclick",
+    },
+  });
+
+  if (isDev) {
+    childWindow.loadURL(selfHost);
+  } else {
+    childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`); //Might not work for production needs to fix
+  }
+
+  childWindow.webContents.on("did-finish-load", () => {
+    childWindow.setTitle(`Nimble Labs`);
+  });
+
+  if (isDev) {
+    childWindow.webContents.once("dom-ready", async () => {
+      await installExtension([REDUX_DEVTOOLS])
+        .then((name) => console.log(`Added Extension ${name}`))
+        .catch((err) => console.log("An error occured: ", err))
+        .finally(() => {
+          childWindow.webContents.openDevTools();
+        });
+    });
+  }
+
+  //Emits when window is closed
+  childWindow.on("closed", () => {
+    childWindow = null;
+  });
+
+  // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
+  const ses = session;
+  const partition = "default";
+  ses
+    .fromPartition(
+      partition
+    ) /* eng-disable PERMISSION_REQUEST_HANDLER_JS_CHECK */
+    .setPermissionRequestHandler((webContents, permission, permCallback) => {
+      const allowedPermissions = []; // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
+
+      if (allowedPermissions.includes(permission)) {
+        permCallback(true); // Approve permission request
+      } else {
+        console.error(
+          `The application tried to request permission for '${permission}'. This permission was not whitelisted and has been blocked.`
+        );
+
+        permCallback(false); // Deny
+      }
+    });
+}
+
 // Needs to be called before app is ready;
 // gives our scheme access to load relative files,
 // as well as local storage, cookies, etc.
@@ -119,18 +204,21 @@ protocol.registerSchemesAsPrivileged([
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+//init o
+app.whenReady().then(() => {
+  createWindow();
+});
 
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
+app.on("window-all-closed", () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
-app.on('activate', () => {
+app.on("activate", () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
@@ -139,8 +227,8 @@ app.on('activate', () => {
 });
 
 // https://electronjs.org/docs/tutorial/security#12-disable-or-limit-navigation
-app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (contentsEvent, navigationUrl) => {
+app.on("web-contents-created", (event, contents) => {
+  contents.on("will-navigate", (contentsEvent, navigationUrl) => {
     /* eng-disable LIMIT_NAVIGATION_JS_CHECK  */
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [selfHost];
@@ -155,7 +243,7 @@ app.on('web-contents-created', (event, contents) => {
     }
   });
 
-  contents.on('will-redirect', (contentsEvent, navigationUrl) => {
+  contents.on("will-redirect", (contentsEvent, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [];
 
@@ -171,7 +259,7 @@ app.on('web-contents-created', (event, contents) => {
 
   // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
   contents.on(
-    'will-attach-webview',
+    "will-attach-webview",
     (contentsEvent, webPreferences, params) => {
       // Disable Node.js integration
       webPreferences.nodeIntegration = false;
@@ -192,12 +280,168 @@ app.on('web-contents-created', (event, contents) => {
       );
 
       return {
-        action: 'deny',
+        action: "deny",
       };
     }
 
     return {
-      action: 'allow',
+      action: "allow",
     };
   });
 });
+
+//Choose Directory Functionality
+async function handleFileOpen() {
+  const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    properties: ["openDirectory"],
+  });
+  if (!canceled) {
+    store.set("directoryPath", filePaths[0]);
+    return path.basename(filePaths[0]);
+  }
+}
+
+//Gets all paths for Next Js Directory
+function handleDirectoryPaths() {
+  const dirPath = store.get("directoryPath");
+  console.log(dirPath);
+  const pathsArr = ["/"];
+  const fullPaths = [dirPath];
+  const map = { app: "/" };
+
+  //Recurses through directory only pulling acitve paths
+  // Can make this more refined by looking for only directories with page.jsx in it
+  function parsePaths(dirPath) {
+    const dirFiles = fs.readdirSync(dirPath);
+    // console.log(dirFiles);
+    for (const file of dirFiles) {
+      const stats = fs.statSync(path.join(dirPath, file));
+
+      // console.log(file);
+      if (stats.isDirectory()) {
+        if (file[0] === "(") {
+          parsePaths(path.join(dirPath, file));
+        } else {
+          if (map[file]) pathsArr.push(map[file]);
+          else pathsArr.push("/" + file);
+          fullPaths.push(dirPath + "/" + file);
+          parsePaths(path.join(dirPath, file));
+        }
+      }
+    }
+  }
+
+  parsePaths(dirPath);
+  store.set("dirPaths", fullPaths);
+  console.log(store.get("dirPaths"));
+  return pathsArr;
+}
+
+function handleGetExperiments() {
+  const experiments = store.get("experiments");
+  return experiments;
+}
+
+// takes an experiment object
+async function handleAddExperiment(event, experiment) {
+  console.log(experiment);
+  const { experimentName, deviceType } = experiment;
+  try {
+    const newExperiment = await prisma.experiments.create({
+      data: {
+        Experiment_Name: experiment,
+        Device_Type: "Desktop",
+      },
+    });
+    console.log("New experiment created");
+  } catch (error) {
+    console.error(
+      "Error creating experiment with name ",
+      experiment,
+      "error message: ",
+      error
+    );
+  }
+}
+
+// async function handleAddRepo(event, repo) {
+//   console.log(repo);
+//   try {
+//     const newRepo = await prisma.repo.create({
+//       data: {
+//         Experiment_Name: experiment,
+//         Device_Type: "Desktop",
+//       },
+//     });
+//     console.log("New experiment created");
+//   } catch (error) {
+//     console.error(
+//       "Error creating experiment with name ",
+//       experiment,
+//       "error message: ",
+//       error
+//     );
+//   }
+// }
+
+async function handleAddVariant(event, variant) {
+  // destructure the variant object
+  console.log(variant);
+  const { filePath, weight, experimentId } = variant;
+  console.log(filePath);
+  console.log(weight);
+  console.log(experimentId);
+  // add to database
+  try {
+    const newVariant = await prisma.Variants.create({
+      data: {
+        filePath: filePath,
+        weights: weight,
+        Experiment_Id: experimentId,
+        // this is on the schema but may not be needed. For now a blank array
+      },
+    });
+    console.log("New variant added");
+  } catch (error) {
+    console.error(
+      "Error creating variant with data: ",
+      variant,
+      "error message: ",
+      error
+    );
+  }
+}
+
+async function handleGetVariants(event, experimentId) {
+  console.log("reached the getVariants function");
+  try {
+    const variants = await prisma.variants.findMany({
+      where: {
+        Experiment_Id: experimentId,
+      },
+    });
+    console.log(variants);
+    return JSON.stringify(variants);
+  } catch (error) {
+    console.error(
+      "Error creating variant with experimentID ",
+      experimentId,
+      "error message: ",
+      error
+    );
+  }
+}
+
+function handleCreateTextEditor() {
+  createTextEditorModal();
+  // console.log('hi');
+}
+//Event Listeners for Client Side Actions
+ipcMain.handle("dialog:openFile", handleFileOpen);
+ipcMain.handle("directory:parsePaths", handleDirectoryPaths);
+ipcMain.handle("experiment:getExperiments", handleGetExperiments);
+ipcMain.handle("modal:createModal", handleCreateTextEditor);
+// database api
+ipcMain.handle("database:addExperiment", handleAddExperiment);
+ipcMain.handle("database:addVariant", handleAddVariant);
+ipcMain.handle("database:getVariants", handleGetVariants);

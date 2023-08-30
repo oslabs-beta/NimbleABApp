@@ -12,6 +12,8 @@
       "ESNext",
       "dom"
     ],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "jsx": "react",
     "noEmit": true,
     "sourceMap": true,
@@ -23,6 +25,8 @@
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true
+    // "emitDeclarationOnly": true
   },
-  "include": ["app/src"]
+  "include": ["app/src"],
+  "exclude": ["node_modules", "renderer.d.ts"]
 }

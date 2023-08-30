@@ -1,11 +1,12 @@
 export const pathNames: paths = {
-  HOME: '/',
-  ABOUT: '/about',
-  MOTD: '/motd',
-  LOCALIZATION: '/localization',
-  UNDOREDO: '/undoredo',
-  CONTEXTMENU: '/contextmenu',
-  IMAGE: '/image',
+  HOME: "/",
+  ABOUT: "/about",
+  MOTD: "/motd",
+  LOCALIZATION: "/localization",
+  UNDOREDO: "/undoredo",
+  CONTEXTMENU: "/contextmenu",
+  IMAGE: "/image",
+  TESTINGCONFIG: "/config",
 };
 
 export type paths = {
@@ -16,4 +17,5 @@ export type paths = {
   UNDOREDO: string;
   CONTEXTMENU: string;
   IMAGE: string;
+  TESTINGCONFIG: string;
 };
