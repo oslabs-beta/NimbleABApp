@@ -26,7 +26,7 @@ module.exports = merge(base, {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'app/src/index.html'),
       filename: 'index.html',
-      chunks: ['home'],
+      chunks: ['modal'],
     }),
     new HtmlWebpackPlugin({
       filename: 'modal.html',
