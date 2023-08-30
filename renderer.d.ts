@@ -3,6 +3,7 @@ export interface IElectronAPI {
   parsePaths: () => Promise<any>;
   getExperiments: () => Promise<any>;
   createModal: () => Promise<any>;
+  addExperiment: (name: string) => Promise<any>;
 }
 
 declare global {
