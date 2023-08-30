@@ -15,6 +15,7 @@ type Variant = {
   id: string;
   fileName: string;
   weight: number;
+  experiment_id: string;
 };
 
 // middleware function that determines which variant to serve based on device type and possibly cookie values
@@ -48,22 +49,41 @@ export async function staticMiddleware(req: NextRequest) {
     return variants[0];
   }
 
-  // check for existing cookie per https://nextjs.org/docs/app/api-reference/functions/next-request
-  // convert it to a string if it exists
-  const variantID = req.cookies.get('variantID')?.toString();
+  // check for existing cookie
+  const expVariantID = req.cookies.get('expVariantID')?.toString();
+
+  // choose an experiment and then a variant inside the experiment
+  const experimentId = req.nextUrl.query.experimentId;
+  let chosenExperiment;
+
+  // prioritize experiment selection via query parameter
+  // first check if a variant has been selected based on the expVariantID cookie
+  // if not, then choose a variant based on the device type and the weights of the available variants
+  if (experimentId) {
+    chosenExperiment =
+      variantsConfig.find((e) => e.experiment_id === experimentId) ||
+      variantsConfig[0];
+  } else if (expVariantID) {
+    const [experimentID] = expVariantID.split('_');
+    chosenExperiment =
+      variantsConfig.find((e) => e.experiment_id === experimentID) ||
+      variantsConfig[0];
+  } else {
+    chosenExperiment = variantsConfig[0];
+  }
 
   let chosenVariant;
 
-  // if a variant ID exists in the cookies, use it to find the corresponding variant
-  if (variantID) {
-    chosenVariant =
-      variantsConfig.find((v) => v.id === variantID) ||
-      chooseVariant(deviceType, variantsConfig); // if not found, choose a new variant based on device type and weights
-  } else {
-    // if no variant ID in the cookies, choose a variant based on device type and weights
-    chosenVariant = chooseVariant(deviceType, variantsConfig);
+  if (expVariantID) {
+    const [, variantID] = expVariantID.split('_');
+    if (chosenExperiment) {
+      chosenVariant = chosenExperiment.variants.find((v) => v.id === variantID);
+    }
   }
 
+  if (!chosenVariant) {
+    chosenVariant = chooseVariant(deviceType, chosenExperiment.variants);
+  }
   // asynchronously call the increment RPC function in Supabase without waiting for it to complete
   // create a separate static_variants table and static_increment function for the staticConfig (https://supabase.com/dashboard/project/tawrifvzyjqcddwuqjyq/database/functions) per https://www.youtube.com/watch?v=n5j_mrSmpyc
   supabase
@@ -80,12 +100,16 @@ export async function staticMiddleware(req: NextRequest) {
   const res = NextResponse.rewrite(`/${chosenVariant.fileName}`);
 
   // if the variant ID doesn't exist in the cookies, set it now for future requests
-  if (!variantID) {
-    res.cookies.set('variantID', chosenVariant.id, {
-      path: '/',
-      httpOnly: true,
-      maxAge: 10 * 365 * 24 * 60 * 60, // set the cookie to expire in 10 years
-    });
+  if (!expVariantID) {
+    res.cookies.set(
+      'expVariantID',
+      `${chosenExperiment.experiment_id}_${chosenVariant.id}`,
+      {
+        path: '/',
+        httpOnly: true,
+        maxAge: 10 * 365 * 24 * 60 * 60, // set the cookie to expire in 10 years
+      }
+    );
   }
 
   // return the response with the rewritten url or any set cookies

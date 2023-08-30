@@ -1,18 +1,24 @@
 [
-    {
-      "id": "variant1",
-      "fileName": "variant1.html",
-      "weight": 50
-    },
-    {
-      "id": "variant2",
-      "fileName": "variant2.html",
-      "weight": 30
-    },
-    {
-      "id": "variant3",
-      "fileName": "variant3.html",
-      "weight": 20
-    }
-  ]
-  
+  {
+    "experiment_name": "test1",
+    "experiment_id": "test1id",
+    "device_type": "mobile",
+    "variants": [
+      {
+        "id": "variant1",
+        "fileName": "variant1.html",
+        "weight": 50
+      },
+      {
+        "id": "variant2",
+        "fileName": "variant2.html",
+        "weight": 30
+      },
+      {
+        "id": "variant3",
+        "fileName": "variant3.html",
+        "weight": 20
+      }
+    ]
+  }
+]
