@@ -3,12 +3,14 @@ import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import VariantRow from "./VariantRow";
 import CreateVariant from "./CreateVariant";
+import { PrismaClient } from "@prisma/client";
+import { IElectronAPI } from "../../../../renderer";
+
 // initialize Supabase client
 const supabaseUrl = "https://tawrifvzyjqcddwuqjyq.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhd3JpZnZ6eWpxY2Rkd3VxanlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI2NTc2MjcsImV4cCI6MjAwODIzMzYyN30.-VekGbd6Iwey0Q32SQA0RxowZtqSlDptBhlt2r-GZBw";
 const supabase = createClient(supabaseUrl, supabaseKey);
-
 interface RowProps {
   index: number;
 }
@@ -17,6 +19,7 @@ const TestingConfig: React.FC = () => {
   const [rows, setRows] = useState<React.FC<RowProps>[]>([]);
   const [totalWeight, setTotalWeight] = useState<number>(0);
 
+  const [experimentName, updateExperimentName] = useState<string>("");
   const handleAddRow = () => {
     setRows([...rows, VariantRow]);
   };
@@ -45,8 +48,33 @@ const TestingConfig: React.FC = () => {
     }
   };
 
+  /// functionality
+
+  // if exists display at top
+  const handleExperienceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateExperimentName(e.target.value);
+  };
+
+  const handleExpSubmit = async () => {
+    if (experimentName) await window.electronAPI.addExperiment(experimentName);
+    // await window.electronAPI.addExperiment("new Experiment");
+    else alert("experiment must have a name");
+  };
+
   return (
-    <div>
+    <div className="h-screen w-full bg-primary flex p-10 gap-2 font-mono">
+      <form>
+        <label htmlFor="name">Name:</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value={experimentName}
+          onChange={handleExperienceInput}
+        />
+        <button onClick={handleExpSubmit}>Submit experiment name</button>
+      </form>
+      <p>Name: {FormData.name}</p>
       {rows.map((VariantRow, index) => (
         <VariantRow index={index}></VariantRow>
       ))}

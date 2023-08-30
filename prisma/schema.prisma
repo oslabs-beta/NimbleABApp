@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../nimbleStore2.db"
+}
+
+model Experiments {
+  id              Int        @id @default(autoincrement())
+  Experiment_Name String?
+  Device_Type     String?
+  Repo_id         Int?
+  Repos           Repos?     @relation(fields: [Repo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Variants        Variants[]
+}
+
+model Variants {
+  id            Int         @id @default(autoincrement())
+  filePath      String
+  weights       Decimal
+  Experiment_Id Int
+  Experiments   Experiments @relation(fields: [Experiment_Id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Repos {
+  id          Int           @id @default(autoincrement())
+  FilePath    String
+  Experiments Experiments[]
+}
