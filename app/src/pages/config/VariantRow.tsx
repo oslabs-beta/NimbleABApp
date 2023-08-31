@@ -68,7 +68,7 @@ const VariantRow: React.FC<RowProps> = (props: RowProps) => {
       <input
         type="number"
         placeholder="Weight"
-        value={thisRow.weight ? thisRow.weight : "something broke"}
+        value={thisRow.weight ? thisRow.weight : ""}
         onChange={handleWeightChange}
       />
 

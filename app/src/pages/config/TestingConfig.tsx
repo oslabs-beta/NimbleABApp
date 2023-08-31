@@ -11,6 +11,15 @@ import NameExperiment from "./NameExperiment";
 import VariantDisplay from "./VariantDisplay";
 import exp from "constants";
 // initialize Supabase client
+
+// current defects:
+// 1. Doesn't build an experiment object
+// 2. Doesn't post to the database
+// 3. Existing variants aren't displayed correctly
+// 4. Layout of new creation fields
+// 5. No modal on click
+// 6. No back button to homepage
+
 const supabaseUrl = "https://tawrifvzyjqcddwuqjyq.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhd3JpZnZ6eWpxY2Rkd3VxanlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI2NTc2MjcsImV4cCI6MjAwODIzMzYyN30.-VekGbd6Iwey0Q32SQA0RxowZtqSlDptBhlt2r-GZBw";
@@ -25,6 +34,11 @@ interface Variant {
   deviceType: string;
 }
 
+interface Experiment {
+  name: string;
+  variants: [];
+}
+
 const TestingConfig: React.FC = () => {
   const [rows, setRows] = useState<React.FC<RowProps>[]>([]);
   const [totalWeight, setTotalWeight] = useState<number>(0);
@@ -32,6 +46,11 @@ const TestingConfig: React.FC = () => {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [experimentName, updateExperimentName] = useState<string>("");
   const [experimentId, updateExperimentId] = useState(0);
+
+  // build this throughout and then submit
+  const [experimentObj, updateExperimentObj] = useState({});
+
+  // this function adds a new row
   const handleAddRow = () => {
     setRows([...rows, VariantRow]);
   };
@@ -43,7 +62,7 @@ const TestingConfig: React.FC = () => {
 
   const getVariants = async () => {
     try {
-      const variantsString = await window.electronAPI.getVariants(1);
+      const variantsString = await window.electronAPI.getVariants(experimentId);
       const variants = JSON.parse(variantsString);
 
       console.log("Variants retrieved: ", variants);
@@ -81,6 +100,7 @@ const TestingConfig: React.FC = () => {
 
   async function main() {
     try {
+      getVariants();
       const experimentObjectString = await getExperimentdata();
       const experimentObject = JSON.parse(experimentObjectString);
       updateExperimentId(experimentObject[0].experiment_ID);
@@ -113,7 +133,7 @@ const TestingConfig: React.FC = () => {
         newRowAnchor.appendChild(newRowContainer);
       }
     }
-  }, [rows]);
+  }, []);
   main();
 
   return (
@@ -141,13 +161,6 @@ const TestingConfig: React.FC = () => {
             onClick={handleSubmit}
           >
             Submit Experiment
-          </button>
-
-          <button
-            className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-            onClick={getVariants}
-          >
-            Check the variants (console.log)
           </button>
         </div>
       </div>
