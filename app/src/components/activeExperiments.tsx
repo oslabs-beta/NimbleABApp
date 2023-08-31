@@ -6,6 +6,7 @@ const activeExperiment = (): React.JSX.Element => {
   const [experiments, setExperiments] = useState([]);
 
   const getExperiments = async (): Promise<any> => {
+    //Gets All experiments from DB
     const data = await window.electronAPI.getExperiments();
     await setExperiments(data);
   };
