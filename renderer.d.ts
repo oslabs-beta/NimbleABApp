@@ -6,7 +6,7 @@ export interface IElectronAPI {
   addExperiment: (name: object) => Promise<any>;
   addVariant: (name: object) => Promise<any>;
   addRepo: (name: string) => Promise<any>;
-  getVariants: (expId: number) => Promise<any>;
+  getVariants: (expId: number | string) => Promise<any>;
 }
 
 declare global {

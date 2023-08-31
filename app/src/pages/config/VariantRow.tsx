@@ -9,11 +9,7 @@ interface Row {
   deviceType: string;
 }
 
-interface RowProps {
-  index: number;
-}
-
-const VariantRow: React.FC<RowProps> = (props: RowProps) => {
+const VariantRow: React.FC = () => {
   // set up state with the row's data
   const [thisRow, setThisRow] = useState<Row>({
     variantURL: "",
@@ -58,7 +54,7 @@ const VariantRow: React.FC<RowProps> = (props: RowProps) => {
   if (isDestroyed) return null;
 
   return (
-    <div key={props.index}>
+    <div>
       <input
         type="text"
         placeholder="Variant URL"

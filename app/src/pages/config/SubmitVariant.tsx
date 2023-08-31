@@ -1,5 +1,7 @@
 import React from "react";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
+
 interface VariantProps {
   // deviceType: string;
   weight: number | null;
@@ -23,6 +25,8 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
     } catch (error) {
       console.log("error in the Submit Variant component ", error);
     }
+
+    // submit to the supabase db
     return;
   };
 

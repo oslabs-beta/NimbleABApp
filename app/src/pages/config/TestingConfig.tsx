@@ -19,6 +19,7 @@ import exp from "constants";
 // 4. Layout of new creation fields
 // 5. No modal on click
 // 6. No back button to homepage
+// 7. Change database IDs to UUIDs
 
 const supabaseUrl = "https://tawrifvzyjqcddwuqjyq.supabase.co";
 const supabaseKey =
@@ -60,9 +61,9 @@ const TestingConfig: React.FC = () => {
   //   setTotalWeight(calculatedTotal);
   // };
 
-  const getVariants = async () => {
+  const getVariants = async (id: number | string) => {
     try {
-      const variantsString = await window.electronAPI.getVariants(experimentId);
+      const variantsString = await window.electronAPI.getVariants();
       const variants = JSON.parse(variantsString);
 
       console.log("Variants retrieved: ", variants);
@@ -100,17 +101,14 @@ const TestingConfig: React.FC = () => {
 
   async function main() {
     try {
-      getVariants();
       const experimentObjectString = await getExperimentdata();
       const experimentObject = JSON.parse(experimentObjectString);
-      updateExperimentId(experimentObject[0].experiment_ID);
+
+      experimentObject[0].experiment_ID
+        ? updateExperimentId(experimentObject[0].experiment_ID)
+        : updateExperimentId(1); // this is for demo purposes
       updateExperimentName(experimentObject[0].Experiment_Name);
-      console.log("Promise resolved successfully");
-      console.log(experimentObject + " is the experiment object");
-      console.log(
-        Object.keys(experimentObject) + " are the return object keys"
-      );
-      console.log(experimentName + " is the state experiment name value");
+      getVariants(experimentId);
     } catch (error) {
       console.error("An error occurred:", error);
     }
@@ -119,12 +117,12 @@ const TestingConfig: React.FC = () => {
   //use effect to listen out for updates to variant rows
 
   useEffect(() => {
+    main();
+
     // Listen for changes in the rows state
     if (rows.length > 0) {
       // Assuming VariantRow is a component
-      const newRow = (
-        <VariantRow index={rows.length - 1} key={rows.length - 1} />
-      );
+      const newRow = <VariantRow />;
       const newRowContainer = document.createElement("div");
       ReactDOM.render(newRow, newRowContainer);
 
@@ -134,7 +132,6 @@ const TestingConfig: React.FC = () => {
       }
     }
   }, []);
-  main();
 
   return (
     <div className="h-screen w-full bg-primary flex font-mono">
@@ -153,8 +150,10 @@ const TestingConfig: React.FC = () => {
             className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
             onClick={handleAddRow}
           >
-            Add Variant
+            Configure new Variant
           </button>
+
+          <VariantRow></VariantRow>
 
           <button
             className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
