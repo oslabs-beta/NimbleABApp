@@ -56,7 +56,12 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
 
   return (
     <div>
-      <button onClick={submitToDB}>Submit Variant</button>
+      <button
+        onClick={submitToDB}
+        className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
+      >
+        Submit Variant
+      </button>
     </div>
   );
 };

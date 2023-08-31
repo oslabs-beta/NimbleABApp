@@ -133,7 +133,7 @@ const TestingConfig: React.FC = () => {
 
   return (
     <div className="h-screen w-full bg-primary flex font-mono">
-      <div className="h-screen w-full bg-primary flex flex-col p-10 gap-2 font-mono">
+      <div className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono">
         {experimentName ? (
           <p>
             Configuration for experiment <br></br>{" "}
@@ -161,15 +161,29 @@ const TestingConfig: React.FC = () => {
           </button>
         </div>
       </div>
-      <div id="variantAnchor">
-        {variants.map((variant, index) => (
-          <VariantDisplay
-            key={index}
-            filepath={variant.filePath}
-            weight={variant.weight}
-            deviceType={variant.deviceType}
-          />
-        ))}
+      <div
+        id="variantAnchor"
+        className="flex w-1/2 justify-center items-center"
+      >
+        <h2>Variants</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>File Path</th>
+              <th>Weight</th>
+              <th>Device Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {variants.map((variant, index) => (
+              <tr key={index}>
+                <td>{variant.filePath}</td>
+                <td>{variant.weight}</td>
+                <td>{variant.deviceType}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
