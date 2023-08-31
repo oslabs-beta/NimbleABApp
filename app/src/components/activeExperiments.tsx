@@ -5,7 +5,7 @@ import ExperimentComponent from './experiment';
 const activeExperiment = (): React.JSX.Element => {
   const [experiments, setExperiments] = useState([]);
 
-  const getExperiments = async (): Promise<any> => {
+  const getExperiments = async (): Promise<void> => {
     //Gets All experiments from DB
     const data = await window.electronAPI.getExperiments();
     await setExperiments(data);

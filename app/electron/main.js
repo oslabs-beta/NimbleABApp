@@ -64,6 +64,7 @@ async function createWindow() {
   //set initial background color
   // win.setBackgroundColor('');
 
+  //Loads local server in DevMode. Modal Only Loads in Dev mode if chunks are changed. Production is Ready
   if (isDev) {
     win.loadURL(selfHost);
   } else {
@@ -74,6 +75,7 @@ async function createWindow() {
     win.setTitle(`Nimble Labs`);
   });
 
+  //Loads DevTools in DevMode
   if (isDev) {
     win.webContents.once('dom-ready', async () => {
       await installExtension([REDUX_DEVTOOLS])
@@ -135,20 +137,20 @@ async function createTextEditorModal() {
       contextIsolation: true,
       enableRemoteModule: false,
       preload: path.join(__dirname, 'preload.ts'),
-      // disableBlinkFeatures: "Auxclick",
     },
   });
 
   if (isDev) {
     childWindow.loadURL(selfHost);
   } else {
-    childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`); //Might not work for production needs to fix
+    childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`);
   }
 
   childWindow.webContents.on('did-finish-load', () => {
     childWindow.setTitle(`Nimble Labs`);
   });
 
+  //Loads Redux DevTools when in DevMode
   if (isDev) {
     childWindow.webContents.once('dom-ready', async () => {
       await installExtension([REDUX_DEVTOOLS])
