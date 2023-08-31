@@ -8,6 +8,7 @@ export type SelectPathProps = {
 };
 export default function SelectPath({ disabled, dirPaths }: SelectPathProps) {
   console.log(disabled);
+  //Store patch in redux
 
   return (
     <Autocomplete
