@@ -78,9 +78,9 @@ const VariantRow: React.FC<RowProps> = (props: RowProps) => {
         Remove
       </button>
       <SubmitVariant
-        deviceType={thisRow.deviceType}
         weight={thisRow.weight}
-        url={thisRow.variantURL}
+        filePath={thisRow.variantURL}
+        experiment_ID={1}
       ></SubmitVariant>
     </div>
   );
