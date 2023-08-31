@@ -5,9 +5,15 @@ import Autocomplete from '@mui/material/Autocomplete';
 export type SelectPathProps = {
   disabled: boolean;
   dirPaths: Array<string>;
+  setExperimentPath: React.Dispatch<React.SetStateAction<string>>;
 };
-export default function SelectPath({ disabled, dirPaths }: SelectPathProps) {
+export default function SelectPath({
+  disabled,
+  dirPaths,
+  setExperimentPath,
+}: SelectPathProps) {
   console.log(disabled);
+  //Store patch in redux
 
   return (
     <Autocomplete
@@ -15,6 +21,9 @@ export default function SelectPath({ disabled, dirPaths }: SelectPathProps) {
       disabled={disabled}
       id="combo-box-demo"
       options={dirPaths}
+      onChange={(event, path) => {
+        if (path) setExperimentPath(path);
+      }}
       sx={{
         '& .MuiOutlinedInput-root': {
           //   border: '1px solid white',

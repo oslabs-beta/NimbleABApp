@@ -10,6 +10,7 @@ const Home = (): React.JSX.Element => {
     const data = await window.electronAPI.createModal();
     console.log(data);
   }
+
   return (
     <>
       <div className="h-screen w-full bg-primary flex p-10 gap-2 font-mono">
