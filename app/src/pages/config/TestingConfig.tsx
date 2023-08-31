@@ -10,6 +10,8 @@ import { useContext, useEffect } from "react";
 import NameExperiment from "./NameExperiment";
 import VariantDisplay from "./VariantDisplay";
 import exp from "constants";
+import { v4 as uuidv4 } from "uuid";
+import { useLocation } from "react-router-dom";
 // initialize Supabase client
 
 // current defects:
@@ -56,13 +58,9 @@ const TestingConfig: React.FC = () => {
     setRows([...rows, VariantRow]);
   };
 
-  // const handleCalculateTotal = () => {
-  //   const calculatedTotal = rows.reduce((acc, row) => acc + row.weight, 0);
-  //   setTotalWeight(calculatedTotal);
-  // };
-
   const getVariants = async (id: number | string) => {
     try {
+      // this is a typescript error that doesn't prevent us from running. We're going to leave it this way and debut post demo
       const variantsString = await window.electronAPI.getVariants();
       const variants = JSON.parse(variantsString);
 

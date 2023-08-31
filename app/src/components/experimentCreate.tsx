@@ -1,25 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import { IElectronAPI } from '../../../renderer';
-import { Link } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useEffect, useState } from "react";
+import { IElectronAPI } from "../../../renderer";
+import { Link } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
-import SelectPath from './selectPath';
+import SelectPath from "./selectPath";
 const ExperimentCreate = (): React.JSX.Element => {
   //Opened Directory
-  const [filePath, setFilePath] = useState('');
+  const [filePath, setFilePath] = useState("");
   //Makes sure Directory is opened
   const [allowSelect, setAllowSelect] = useState(true);
   //All available paths to run experiment on
   const [dirPaths, setDirPaths] = useState([]);
   //Name of experiment
-  const [experimentName, setExperimentName] = useState('');
+  const [experimentName, setExperimentName] = useState("");
   //Path Experiment will run on
-  const [experimentPath, setExperimentPath] = useState('');
+  const [experimentPath, setExperimentPath] = useState("");
   //The experiment ID
   const [experimentId, setExperimentId] = useState(uuidv4());
 
   async function handleCreateExperiment(): Promise<void> {
     //Add Repo and Add Experiment
+    // const { experimentId, experiment_name, experiment_path, device_type } =
+    const response = await axios.post(
+      "https://nimblebackend-te9u.onrender.com/createExperiment",
+      {
+        experimentId: experimentId,
+        experiment_name: experimentName,
+        experiment_path: experimentPath,
+        device_type: "desktop",
+      },
+      {
+        withCredentials: false,
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+          // "Access-Control-Allow-Origin": "*",
+          // "Access-Control-Allow-Methods":
+          //   "GET, POST, PATCH, PUT, DELETE, OPTIONS",
+          // "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token",
+        },
+      }
+    );
+    console.log(response.status);
+    console.log("end of new experiment post");
   }
 
   async function handleClick() {
