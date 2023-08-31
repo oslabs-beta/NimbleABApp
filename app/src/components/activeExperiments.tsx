@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { IElectronAPI } from '../../../renderer';
-import ExperimentComponent from './experiment';
+import React, { useEffect, useState } from "react";
+import { IElectronAPI } from "../../../renderer";
+import ExperimentComponent from "./experiment";
 
 const activeExperiment = (): React.JSX.Element => {
   const [experiments, setExperiments] = useState([]);
@@ -10,7 +10,7 @@ const activeExperiment = (): React.JSX.Element => {
     await setExperiments(data);
   };
   useEffect(() => {
-    console.log('running');
+    console.log("running");
     getExperiments();
   }, []);
 

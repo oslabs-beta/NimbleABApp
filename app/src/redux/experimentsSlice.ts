@@ -6,7 +6,7 @@ const initialState = {
   repoPath: "/",
 };
 const experimentSlice = createSlice({
-  name: "home",
+  name: "experiment",
   initialState,
   reducers: {
     updateExperimentId: (state, action) => {

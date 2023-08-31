@@ -337,11 +337,6 @@ function handleDirectoryPaths() {
   return pathsArr;
 }
 
-function handleGetExperiments() {
-  const experiments = store.get("experiments");
-  return experiments;
-}
-
 // takes an experiment object
 async function handleAddExperiment(event, experiment) {
   console.log(experiment);
@@ -425,6 +420,26 @@ async function handleGetVariants(event, experimentId) {
   } catch (error) {
     console.error(
       "Error creating variant with experimentID ",
+      experimentId,
+      "error message: ",
+      error
+    );
+  }
+}
+
+async function handleGetExperiments(event, experimentId) {
+  console.log("reached the getExperiments function");
+  try {
+    const experiments = await prisma.experiments.findMany({
+      where: {
+        id: experimentId,
+      },
+    });
+    console.log(experiments);
+    return JSON.stringify(experiments);
+  } catch (error) {
+    console.error(
+      "Error fetching experiment with experimentID ",
       experimentId,
       "error message: ",
       error

@@ -5,7 +5,7 @@ import CreateVariant from "./CreateVariant";
 import SubmitVariant from "./SubmitVariant";
 interface Row {
   variantURL: string;
-  weight: number;
+  weight: number | null;
   deviceType: string;
 }
 
@@ -17,7 +17,7 @@ const VariantRow: React.FC<RowProps> = (props: RowProps) => {
   // set up state with the row's data
   const [thisRow, setThisRow] = useState<Row>({
     variantURL: "",
-    weight: 0,
+    weight: null,
     deviceType: "",
   });
 
@@ -68,20 +68,21 @@ const VariantRow: React.FC<RowProps> = (props: RowProps) => {
       <input
         type="number"
         placeholder="Weight"
-        value={thisRow.weight}
+        value={thisRow.weight ? thisRow.weight : "something broke"}
         onChange={handleWeightChange}
       />
+
+      <SubmitVariant
+        weight={thisRow.weight}
+        filePath={thisRow.variantURL}
+        experiment_ID={1}
+      ></SubmitVariant>
       <button
         className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
         onClick={handleDestroy}
       >
         Remove
       </button>
-      <SubmitVariant
-        weight={thisRow.weight}
-        filePath={thisRow.variantURL}
-        experiment_ID={1}
-      ></SubmitVariant>
     </div>
   );
 };

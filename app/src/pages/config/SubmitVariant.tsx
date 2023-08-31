@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 interface VariantProps {
   // deviceType: string;
-  weight: number;
+  weight: number | null;
   filePath: string;
   experiment_ID: number;
 }
