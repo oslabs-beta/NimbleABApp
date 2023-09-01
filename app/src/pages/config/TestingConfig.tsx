@@ -12,6 +12,7 @@ import VariantDisplay from "./VariantDisplay";
 import exp from "constants";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation } from "react-router-dom";
+import ExperimentDropDown from "./ExperimentDropDown";
 // initialize Supabase client
 
 // current defects:
@@ -102,6 +103,8 @@ const TestingConfig: React.FC = () => {
       const experimentObjectString = await getExperimentdata();
       const experimentObject = JSON.parse(experimentObjectString);
 
+      // this returns an array. We should display these experiments in a drop down, and let the user configure which is active
+
       experimentObject[0].experiment_ID
         ? updateExperimentId(experimentObject[0].experiment_ID)
         : updateExperimentId(1); // this is for demo purposes
@@ -142,6 +145,7 @@ const TestingConfig: React.FC = () => {
         ) : (
           <NameExperiment></NameExperiment>
         )}
+        <ExperimentDropDown></ExperimentDropDown>
         <CreateVariant experimentID={experimentId}></CreateVariant>
         <div id="newRowAnchor" className="flex flex-col flex-auto w-36">
           <button
