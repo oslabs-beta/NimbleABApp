@@ -29,7 +29,12 @@
         "snap",
         "AppImage"
       ]
-    }
+    },
+    "extraResources": [
+      "prisma/**/*",
+      "node_modules/.prisma/**/*",
+      "node_modules/@prisma/client/**/*"
+    ]
   },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
@@ -43,7 +48,7 @@
     "dist-mac": "npm run test && npm run prod-build && electron-builder --mac",
     "dist-linux": "npm run test && npm run prod-build && electron-builder --linux",
     "dist-windows": "npm run prod-build && electron-builder --windows",
-    "dist-all": "npm run prod-build && electron-builder install-app-deps && electron-builder --mac --linux --windows",
+    "dist-all": "npx prisma generate && npm run prod-build && npx prisma generate && electron-builder install-app-deps && electron-builder --mac --linux --windows",
     "test": "mocha"
   },
   "dependencies": {

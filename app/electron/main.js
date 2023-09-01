@@ -341,6 +341,11 @@ function handleDirectoryPaths() {
   return pathsArr;
 }
 
+function handleGetExperiments() {
+  const experiments = store.get('experiments');
+  return experiments;
+}
+
 // takes an experiment object
 async function handleAddExperiment(event, experiment) {
   console.log(experiment);
