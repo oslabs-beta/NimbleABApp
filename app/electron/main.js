@@ -13,7 +13,7 @@ const {
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
 } = require('electron-devtools-installer');
-
+const axios = require('axios');
 const prisma = require('./prisma.ts');
 const reflect = require('reflect-metadata');
 
@@ -22,7 +22,7 @@ const MenuBuilder = require('./menu');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { parseConfigFileTextToJson } = require('typescript');
+const { data } = require('autoprefixer');
 const isDev = process.env.NODE_ENV === 'development';
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
@@ -349,13 +349,29 @@ function handleGetExperiments() {
 // takes an experiment object
 async function handleAddExperiment(event, experiment) {
   console.log(experiment);
-  const { experimentName, deviceType } = experiment;
+  const {
+    Experiment_name,
+    Device_Type,
+    Repo_id,
+    experiment_path,
+    experiment_uuid,
+  } = experiment;
   try {
     const newExperiment = await prisma.experiments.create({
       data: {
-        Experiment_Name: experiment,
-        Device_Type: 'Desktop',
+        Experiment_Name: Experiment_name,
+        Device_Type,
+        Repo_id,
+        experiment_path,
+        experiment_uuid,
       },
+    });
+    //Adds Experiment to database on supabase
+    axios.post('https://nimblebackend-te9u.onrender.com/createExperiment', {
+      experiment_name: Experiment_name,
+      experimentId: experiment_uuid,
+      experiment_path,
+      device_type: Device_Type,
     });
     console.log('New experiment created');
   } catch (error) {
@@ -436,6 +452,45 @@ async function handleGetVariants(event, experimentId) {
   }
 }
 
+async function handleGetExperiments(event, experimentId) {
+  console.log('reached the getExperiments function');
+  try {
+    const experiments = await prisma.experiments.findMany({
+      where: {
+        id: experimentId,
+      },
+    });
+    console.log(experiments);
+    return JSON.stringify(experiments);
+  } catch (error) {
+    console.error(
+      'Error fetching experiment with experimentID ',
+      experimentId,
+      'error message: ',
+      error
+    );
+  }
+}
+async function handleAddRepo(event, repo) {
+  console.log(repo);
+  try {
+    const { FilePath } = repo;
+    // const data = await prisma.Repos.upsert({
+    //   where: { FilePath },
+    //   create: { FilePath },
+    //   update: { FilePath },
+    // });
+
+    const data = await prisma.Repos.create({
+      data: { FilePath },
+    });
+    console.log(data);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 function handleCreateTextEditor() {
   createTextEditorModal();
   // console.log('hi');
@@ -449,5 +504,6 @@ ipcMain.handle('modal:createModal', handleCreateTextEditor);
 ipcMain.handle('database:addExperiment', handleAddExperiment);
 ipcMain.handle('database:addVariant', handleAddVariant);
 ipcMain.handle('database:getVariants', handleGetVariants);
+ipcMain.handle('database:addRepo', handleAddRepo);
 
 //File System API

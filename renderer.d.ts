@@ -3,9 +3,9 @@ export interface IElectronAPI {
   parsePaths: () => Promise<any>;
   getExperiments: () => Promise<any>;
   createModal: () => Promise<any>;
-  addExperiment: (name: object) => Promise<any>;
+  addExperiment: (experiment: object) => Promise<any>;
   addVariant: (name: object) => Promise<any>;
-  addRepo: (name: string) => Promise<any>;
+  addRepo: (repo: object) => Promise<any>;
   getVariants: (expId: number | string) => Promise<any>;
 }
 
