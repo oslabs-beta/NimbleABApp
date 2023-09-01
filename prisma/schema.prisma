@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // output = "../generated/client"
 }
 
 datasource db {
@@ -29,6 +28,6 @@ model Variants {
 
 model Repos {
   id          Int           @id @default(autoincrement())
-  FilePath    String
+  FilePath    String        @unique(map: "Repos_FilePath_IDX")
   Experiments Experiments[]
 }

@@ -13,6 +13,7 @@ import exp from "constants";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation } from "react-router-dom";
 import ExperimentDropDown from "./ExperimentDropDown";
+import ConfigureVariant from "./ConfigureVariant";
 // initialize Supabase client
 
 // current defects:
@@ -143,27 +144,11 @@ const TestingConfig: React.FC = () => {
             <strong>{experimentName}</strong>
           </p>
         ) : (
-          <NameExperiment></NameExperiment>
+          "No experiment active; return to home and create new"
         )}
         <ExperimentDropDown></ExperimentDropDown>
         <CreateVariant experimentID={experimentId}></CreateVariant>
-        <div id="newRowAnchor" className="flex flex-col flex-auto w-36">
-          <button
-            className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-            onClick={handleAddRow}
-          >
-            Configure new Variant
-          </button>
-
-          <VariantRow></VariantRow>
-
-          <button
-            className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-            onClick={handleSubmit}
-          >
-            Submit Experiment
-          </button>
-        </div>
+        <ConfigureVariant></ConfigureVariant>
       </div>
       <div
         id="variantAnchor"
