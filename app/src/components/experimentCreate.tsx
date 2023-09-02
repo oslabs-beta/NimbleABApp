@@ -9,8 +9,10 @@ import SelectPath from './selectPath';
 const ExperimentCreate = (): React.JSX.Element => {
   //Determine if navigate
   const [configPage, setConfigPage] = useState(false);
-  //Opened Directory
+  //Opened Directory basename
   const [filePath, setFilePath] = useState('');
+  //Opened Directotry Full File Path
+  const [fullFilePath, setFullFilePath] = useState('');
   //Makes sure Directory is opened
   const [allowSelect, setAllowSelect] = useState(true);
   //All available paths to run experiment on
@@ -27,7 +29,7 @@ const ExperimentCreate = (): React.JSX.Element => {
   async function handleCreateExperiment(): Promise<void> {
     //Add Repo and Add Experiment
     const repo_data = await window.electronAPI.addRepo({
-      FilePath: filePath,
+      FilePath: fullFilePath,
     });
     const { id } = repo_data;
     setRepoId(id);
@@ -37,16 +39,17 @@ const ExperimentCreate = (): React.JSX.Element => {
       Repo_id: id,
       experiment_path: experimentPath,
       experiment_uuid: experimentId,
-      directory_path: filePath,
+      directory_path: fullFilePath,
     });
     console.log('end of new experiment post');
     setConfigPage(true);
   }
 
   async function handleClick() {
-    const basename = await window.electronAPI.openFile();
+    const { basename, fullPath } = await window.electronAPI.openFile();
     console.log(basename);
     setFilePath(basename);
+    setFullFilePath(fullPath);
     const paths = await window.electronAPI.parsePaths();
     setDirPaths(paths);
     setAllowSelect(false);
@@ -92,6 +95,7 @@ const ExperimentCreate = (): React.JSX.Element => {
             experimentId,
             repoId,
             experimentName,
+            fullFilePath,
           }}
           replace={true}
         />

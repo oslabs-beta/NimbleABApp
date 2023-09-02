@@ -37,6 +37,7 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
             experimentPath: experiment_path,
             repoId: Repo_id,
             experimentId: experiment_uuid,
+            //Need to also send james the fulldirectorypath
           }}
           replace={true}
         />
