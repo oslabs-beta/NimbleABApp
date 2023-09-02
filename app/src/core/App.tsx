@@ -1,7 +1,7 @@
 import React from 'react';
 
 import AppRoutes from './routes';
-
+import { HashRouter } from 'react-router-dom';
 import Nav from './nav';
 import { Provider } from 'react-redux';
 import { store } from '../redux/store';
@@ -11,8 +11,10 @@ const App = () => {
   return (
     <>
       <Provider store={store}>
-        <Nav></Nav>
-        <AppRoutes></AppRoutes>
+        <HashRouter>
+          <Nav></Nav>
+          <AppRoutes></AppRoutes>
+        </HashRouter>
       </Provider>
     </>
   );

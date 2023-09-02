@@ -301,7 +301,7 @@ async function handleFileOpen() {
   });
   if (!canceled) {
     store.set('directoryPath', filePaths[0]);
-    return path.basename(filePaths[0]);
+    return { basename: path.basename(filePaths[0]), fullPath: filePaths[0] };
   }
 }
 
@@ -355,6 +355,7 @@ async function handleAddExperiment(event, experiment) {
     Repo_id,
     experiment_path,
     experiment_uuid,
+    directory_path,
   } = experiment;
   try {
     const newExperiment = await prisma.experiments.create({
@@ -373,6 +374,10 @@ async function handleAddExperiment(event, experiment) {
       experiment_path,
       device_type: Device_Type,
     });
+    console.log(directory_path);
+    fs.mkdir(path.join(directory_path, experiment_path, '[variants]'), (err) =>
+      console.log(err)
+    );
     console.log('New experiment created');
   } catch (error) {
     console.error(
@@ -384,30 +389,11 @@ async function handleAddExperiment(event, experiment) {
   }
 }
 
-// async function handleAddRepo(event, repo) {
-//   console.log(repo);
-//   try {
-//     const newRepo = await prisma.repo.create({
-//       data: {
-//         Experiment_Name: experiment,
-//         Device_Type: "Desktop",
-//       },
-//     });
-//     console.log("New experiment created");
-//   } catch (error) {
-//     console.error(
-//       "Error creating experiment with name ",
-//       experiment,
-//       "error message: ",
-//       error
-//     );
-//   }
-// }
-
 async function handleAddVariant(event, variant) {
   // destructure the variant object
   console.log(variant);
-  const { filePath, weight, experimentId } = variant;
+  const { filePath, weight, experimentId, fullFilePath, experimentPath } =
+    variant;
   console.log(filePath);
   console.log(weight);
   console.log(experimentId);
@@ -421,6 +407,12 @@ async function handleAddVariant(event, variant) {
         // this is on the schema but may not be needed. For now a blank array
       },
     });
+
+    //Currently doesn't work cause need to connect full file path to redux
+    fs.copyFile(
+      path.join(fullFilePath, experimentPath, `page.js`),
+      path.join(fullFilePath, experimentPath, '[variants]', `${filePath}.js`)
+    );
     console.log('New variant added');
   } catch (error) {
     console.error(
