@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { IElectronAPI } from '../../../renderer';
 import ExperimentComponent from './experiment';
+import { useSelector } from 'react-redux';
 
 const activeExperiment = (): React.JSX.Element => {
   const [experiments, setExperiments] = useState([]);

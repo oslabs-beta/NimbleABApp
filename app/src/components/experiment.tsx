@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-
+import { useSelector } from 'react-redux';
 interface experimentProps {
   data: any;
 }
 const experiment = ({ data }: experimentProps): React.JSX.Element => {
   const [clicked, setClicked] = useState(false);
+
+  const fullFilePath = useSelector(
+    (state: any) => state.experiments.fullFilePath
+  );
+  console.log(fullFilePath);
   //Display relevant experiment data
   const {
     Experiment_Name,
@@ -37,6 +42,7 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
             experimentPath: experiment_path,
             repoId: Repo_id,
             experimentId: experiment_uuid,
+            directory_path: fullFilePath,
             //Need to also send james the fulldirectorypath
           }}
           replace={true}

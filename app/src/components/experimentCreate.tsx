@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { IElectronAPI } from '../../../renderer';
 import { Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
 import SelectPath from './selectPath';
+import { useDispatch } from 'react-redux';
+import { updateFullFilePath } from '../redux/experimentsSlice';
 
 const ExperimentCreate = (): React.JSX.Element => {
+  const Dispatch = useDispatch();
   //Determine if navigate
   const [configPage, setConfigPage] = useState(false);
   //Opened Directory basename
   const [filePath, setFilePath] = useState('');
   //Opened Directotry Full File Path
   const [fullFilePath, setFullFilePath] = useState('');
+  const fullFilePath_2 = useSelector((state: any) => state.fullFilePath);
   //Makes sure Directory is opened
   const [allowSelect, setAllowSelect] = useState(true);
   //All available paths to run experiment on
@@ -49,7 +54,8 @@ const ExperimentCreate = (): React.JSX.Element => {
     const { basename, fullPath } = await window.electronAPI.openFile();
     console.log(basename);
     setFilePath(basename);
-    setFullFilePath(fullPath);
+    setFullFilePath(fullFilePath);
+    Dispatch(updateFullFilePath(fullPath));
     const paths = await window.electronAPI.parsePaths();
     setDirPaths(paths);
     setAllowSelect(false);
