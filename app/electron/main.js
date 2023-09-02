@@ -355,6 +355,7 @@ async function handleAddExperiment(event, experiment) {
     Repo_id,
     experiment_path,
     experiment_uuid,
+    directory_path,
   } = experiment;
   try {
     const newExperiment = await prisma.experiments.create({
@@ -373,6 +374,11 @@ async function handleAddExperiment(event, experiment) {
       experiment_path,
       device_type: Device_Type,
     });
+    console.log(store.get('directoryPath'));
+    fs.mkdir(
+      path.join(store.get('directoryPath'), experiment_path, '[variants]'),
+      (err) => console.log(err)
+    );
     console.log('New experiment created');
   } catch (error) {
     console.error(

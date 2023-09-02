@@ -28,6 +28,6 @@ model Variants {
 
 model Repos {
   id          Int           @id @default(autoincrement())
-  FilePath    String        @unique(map: "Repos_FilePath_IDX")
+  FilePath    String
   Experiments Experiments[]
 }

@@ -37,6 +37,7 @@ const ExperimentCreate = (): React.JSX.Element => {
       Repo_id: id,
       experiment_path: experimentPath,
       experiment_uuid: experimentId,
+      directory_path: filePath,
     });
     console.log('end of new experiment post');
     setConfigPage(true);
