@@ -4,19 +4,25 @@ const {
   BrowserWindow,
   session,
   ipcMain,
+  dialog,
   Menu,
 } = require('electron');
+const Store = require('electron-store');
 const {
   default: installExtension,
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
 } = require('electron-devtools-installer');
+const axios = require('axios');
+const prisma = require('./prisma.ts');
+const reflect = require('reflect-metadata');
 
 const Protocol = require('./protocol');
 const MenuBuilder = require('./menu');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const { data } = require('autoprefixer');
 const isDev = process.env.NODE_ENV === 'development';
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
@@ -24,7 +30,14 @@ const selfHost = `http://localhost:${port}`;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+
+//window for variant editor modal
+let childWindow;
+
 let menuBuilder;
+const store = new Store({
+  path: app.getPath('userData'),
+});
 
 async function createWindow() {
   //Add Autoupdating functionality here
@@ -38,18 +51,20 @@ async function createWindow() {
     height: 800,
     title: 'Application is starting up...',
     webPreferences: {
-      devTools: isDev,
+      devTools: true,
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
       nodeIntegrationInSubFrames: false,
-      // contextIsolation: true,
+      contextIsolation: true,
       enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.ts'),
       // disableBlinkFeatures: "Auxclick",
     },
   });
   //set initial background color
   // win.setBackgroundColor('');
 
+  //Loads local server in DevMode. Modal Only Loads in Dev mode if chunks are changed. Production is Ready
   if (isDev) {
     win.loadURL(selfHost);
   } else {
@@ -60,6 +75,7 @@ async function createWindow() {
     win.setTitle(`Nimble Labs`);
   });
 
+  //Loads DevTools in DevMode
   if (isDev) {
     win.webContents.once('dom-ready', async () => {
       await installExtension([REDUX_DEVTOOLS])
@@ -102,6 +118,79 @@ async function createWindow() {
   // menuBuilder = MenuBuilder(win, app.name);
 }
 
+//Function to create text editor modal
+async function createTextEditorModal() {
+  if (!isDev) {
+    protocol.registerBufferProtocol(Protocol.scheme, Protocol.requestHandler);
+  }
+  childWindow = new BrowserWindow({
+    width: 1000,
+    height: 800,
+    title: 'Application is starting up...',
+    parent: win,
+    modal: true,
+    webPreferences: {
+      devTools: isDev,
+      nodeIntegration: false,
+      nodeIntegrationInWorker: false,
+      nodeIntegrationInSubFrames: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.ts'),
+    },
+  });
+
+  if (isDev) {
+    childWindow.loadURL(selfHost);
+  } else {
+    childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`);
+  }
+
+  childWindow.webContents.on('did-finish-load', () => {
+    childWindow.setTitle(`Nimble Labs`);
+  });
+
+  //Loads Redux DevTools when in DevMode
+  if (isDev) {
+    childWindow.webContents.once('dom-ready', async () => {
+      await installExtension([REDUX_DEVTOOLS])
+        .then((name) => console.log(`Added Extension ${name}`))
+        .catch((err) => console.log('An error occured: ', err))
+        .finally(() => {
+          childWindow.webContents.openDevTools();
+        });
+    });
+  }
+
+  //Emits when window is closed
+  childWindow.on('closed', () => {
+    childWindow = null;
+  });
+
+  // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
+  const ses = session;
+  const partition = 'default';
+  ses
+    .fromPartition(
+      partition
+    ) /* eng-disable PERMISSION_REQUEST_HANDLER_JS_CHECK */
+    .setPermissionRequestHandler((webContents, permission, permCallback) => {
+      const allowedPermissions = []; // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
+
+      if (allowedPermissions.includes(permission)) {
+        permCallback(true); // Approve permission request
+      } else {
+        console.error(
+          `The application tried to request permission for '${permission}'. This permission was not whitelisted and has been blocked.`
+        );
+
+        permCallback(false); // Deny
+      }
+    });
+
+  //Add Custom Menu Builder for the Modal
+}
+
 // Needs to be called before app is ready;
 // gives our scheme access to load relative files,
 // as well as local storage, cookies, etc.
@@ -119,7 +208,10 @@ protocol.registerSchemesAsPrivileged([
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+//init o
+app.whenReady().then(() => {
+  createWindow();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -201,3 +293,209 @@ app.on('web-contents-created', (event, contents) => {
     };
   });
 });
+
+//Choose Directory Functionality
+async function handleFileOpen() {
+  const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    properties: ['openDirectory'],
+  });
+  if (!canceled) {
+    store.set('directoryPath', filePaths[0]);
+    return { basename: path.basename(filePaths[0]), fullPath: filePaths[0] };
+  }
+}
+
+//Gets all paths for Next Js Directory
+function handleDirectoryPaths() {
+  const dirPath = store.get('directoryPath');
+  console.log(dirPath);
+  const pathsArr = ['/'];
+  const fullPaths = [dirPath];
+  const map = { app: '/' };
+
+  //Recurses through directory only pulling acitve paths
+  // Can make this more refined by looking for only directories with page.jsx in it
+  function parsePaths(dirPath) {
+    const dirFiles = fs.readdirSync(dirPath);
+    // console.log(dirFiles);
+    for (const file of dirFiles) {
+      const stats = fs.statSync(path.join(dirPath, file));
+
+      // console.log(file);
+      if (stats.isDirectory()) {
+        if (file[0] === '(') {
+          parsePaths(path.join(dirPath, file));
+        } else {
+          if (map[file]) pathsArr.push(map[file]);
+          else pathsArr.push('/' + file);
+          fullPaths.push(dirPath + '/' + file);
+          parsePaths(path.join(dirPath, file));
+        }
+      }
+    }
+  }
+
+  parsePaths(dirPath);
+  store.set('dirPaths', fullPaths);
+  console.log(store.get('dirPaths'));
+  return pathsArr;
+}
+
+function handleGetExperiments() {
+  const experiments = store.get('experiments');
+  return experiments;
+}
+
+// takes an experiment object
+async function handleAddExperiment(event, experiment) {
+  console.log(experiment);
+  const {
+    Experiment_name,
+    Device_Type,
+    Repo_id,
+    experiment_path,
+    experiment_uuid,
+    directory_path,
+  } = experiment;
+  try {
+    const newExperiment = await prisma.experiments.create({
+      data: {
+        Experiment_Name: Experiment_name,
+        Device_Type,
+        Repo_id,
+        experiment_path,
+        experiment_uuid,
+      },
+    });
+    //Adds Experiment to database on supabase
+    axios.post('https://nimblebackend-te9u.onrender.com/createExperiment', {
+      experiment_name: Experiment_name,
+      experimentId: experiment_uuid,
+      experiment_path,
+      device_type: Device_Type,
+    });
+    console.log(directory_path);
+    fs.mkdir(path.join(directory_path, experiment_path, '[variants]'), (err) =>
+      console.log(err)
+    );
+    console.log('New experiment created');
+  } catch (error) {
+    console.error(
+      'Error creating experiment with name ',
+      experiment,
+      'error message: ',
+      error
+    );
+  }
+}
+
+async function handleAddVariant(event, variant) {
+  // destructure the variant object
+  console.log(variant);
+  const { filePath, weight, experimentId, fullFilePath, experimentPath } =
+    variant;
+  console.log(filePath);
+  console.log(weight);
+  console.log(experimentId);
+  // add to database
+  try {
+    const newVariant = await prisma.Variants.create({
+      data: {
+        filePath: filePath,
+        weights: weight,
+        Experiment_Id: experimentId,
+        // this is on the schema but may not be needed. For now a blank array
+      },
+    });
+
+    //Currently doesn't work cause need to connect full file path to redux
+    fs.copyFile(
+      path.join(fullFilePath, experimentPath, `page.js`),
+      path.join(fullFilePath, experimentPath, '[variants]', `${filePath}.js`)
+    );
+    console.log('New variant added');
+  } catch (error) {
+    console.error(
+      'Error creating variant with data: ',
+      variant,
+      'error message: ',
+      error
+    );
+  }
+}
+
+async function handleGetVariants(event, experimentId) {
+  console.log('reached the getVariants function');
+  try {
+    const variants = await prisma.variants.findMany({
+      where: {
+        Experiment_Id: experimentId,
+      },
+    });
+    console.log(variants);
+    return JSON.stringify(variants);
+  } catch (error) {
+    console.error(
+      'Error creating variant with experimentID ',
+      experimentId,
+      'error message: ',
+      error
+    );
+  }
+}
+
+async function handleGetExperiments(event, experimentId) {
+  console.log('reached the getExperiments function');
+  try {
+    const experiments = await prisma.experiments.findMany({
+      where: {
+        id: experimentId,
+      },
+    });
+    console.log(experiments);
+    return JSON.stringify(experiments);
+  } catch (error) {
+    console.error(
+      'Error fetching experiment with experimentID ',
+      experimentId,
+      'error message: ',
+      error
+    );
+  }
+}
+async function handleAddRepo(event, repo) {
+  console.log(repo);
+  try {
+    const { FilePath } = repo;
+    // const data = await prisma.Repos.upsert({
+    //   where: { FilePath },
+    //   create: { FilePath },
+    //   update: { FilePath },
+    // });
+
+    const data = await prisma.Repos.create({
+      data: { FilePath },
+    });
+    console.log(data);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+function handleCreateTextEditor() {
+  createTextEditorModal();
+  // console.log('hi');
+}
+//Event Listeners for Client Side Actions
+ipcMain.handle('dialog:openFile', handleFileOpen);
+ipcMain.handle('directory:parsePaths', handleDirectoryPaths);
+ipcMain.handle('experiment:getExperiments', handleGetExperiments);
+ipcMain.handle('modal:createModal', handleCreateTextEditor);
+// Database API
+ipcMain.handle('database:addExperiment', handleAddExperiment);
+ipcMain.handle('database:addVariant', handleAddVariant);
+ipcMain.handle('database:getVariants', handleGetVariants);
+ipcMain.handle('database:addRepo', handleAddRepo);
+
+//File System API

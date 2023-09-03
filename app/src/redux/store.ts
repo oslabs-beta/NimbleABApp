@@ -1,26 +1,11 @@
-// import { combineReducers } from 'redux';
-// import { configureStore } from '@reduxjs/toolkit';
-// import { createHashHistory } from 'history';
-// import { createReduxHistoryContext } from 'redux-first-history';
-// import undoable from 'easy-redux-undo';
-// import '../../../index.d.ts';
+import { configureStore } from "@reduxjs/toolkit";
+import experimentsReducer from "./experimentsSlice";
 
-// //All code under here needs to be tailored to our app
-// import homeReducer from '../redux/homeSlice';
-// // import counterReducer from '../components/counter/counterSlice';
-// // import complexReducer from '../components/complex/complexSlice';
+export const store = configureStore({
+  reducer: {
+    experiments: experimentsReducer,
+  },
+});
 
-// const { routerMiddleware, createReduxHistory, routerReducer } =
-//   createReduxHistoryContext({
-//     history: createHashHistory(),
-//   });
-
-// export const store = configureStore({
-//   reducer: combineReducers({
-//     router: routerReducer,
-//     home: homeReducer,
-//   }),
-//   middleware: [routerMiddleware],
-// });
-
-// export const history = createReduxHistory(store);
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

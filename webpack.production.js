@@ -8,14 +8,22 @@ const path = require("path");
 
 module.exports = merge(base, {
   mode: "production",
-  devtool: false,
+  devtool: "source-map",
   plugins: [
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "app/src/index.html"),
       filename: "index.html",
       base: "app://rse",
+      chunks: ["home"],
     }),
+    new HtmlWebpackPlugin({
+      filename: "modal.html",
+      template: "app/src/modal/index.html",
+      base: "app://rse",
+      chunks: ["modal"],
+    }),
+
     // You can paste your CSP in this website https://csp-evaluator.withgoogle.com/
     // for it to give you suggestions on how strong your CSP is
   ],
@@ -27,4 +35,3 @@ module.exports = merge(base, {
     ],
   },
 });
-s;
