@@ -392,7 +392,7 @@ async function handleAddExperiment(event, experiment) {
 async function handleAddVariant(event, variant) {
   // destructure the variant object
   console.log(variant);
-  const { filePath, weight, experimentId, fullFilePath, experimentPath } =
+  const { filePath, weight, experimentId, directoryPath, experimentPath } =
     variant;
   console.log(filePath);
   console.log(weight);
@@ -404,14 +404,16 @@ async function handleAddVariant(event, variant) {
         filePath: filePath,
         weights: weight,
         Experiment_Id: experimentId,
+
         // this is on the schema but may not be needed. For now a blank array
       },
     });
 
     //Currently doesn't work cause need to connect full file path to redux
     fs.copyFile(
-      path.join(fullFilePath, experimentPath, `page.js`),
-      path.join(fullFilePath, experimentPath, '[variants]', `${filePath}.js`)
+      path.join(directoryPath, experimentPath, `page.js`),
+      path.join(directoryPath, experimentPath, '[variants]', `${filePath}.js`),
+      (err) => console.log(err)
     );
     console.log('New variant added');
   } catch (error) {
