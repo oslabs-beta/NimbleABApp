@@ -7,10 +7,7 @@ interface experimentProps {
 const experiment = ({ data }: experimentProps): React.JSX.Element => {
   const [clicked, setClicked] = useState(false);
 
-  const fullFilePath = useSelector(
-    (state: any) => state.experiments.fullFilePath
-  );
-  console.log(fullFilePath);
+  // console.log(fullFilePath);
   //Display relevant experiment data
   const {
     Experiment_Name,
@@ -42,7 +39,7 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
             experimentPath: experiment_path,
             repoId: Repo_id,
             experimentId: experiment_uuid,
-            directory_path: fullFilePath,
+            directoryPath,
             //Need to also send james the fulldirectorypath
           }}
           replace={true}

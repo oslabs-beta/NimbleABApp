@@ -20,7 +20,6 @@ const experimentSlice = createSlice({
       state.repoPath = action.payload;
     },
     updateFullFilePath: (state, action) => {
-      console.log(action.payload);
       state.fullFilePath = action.payload;
     },
   },

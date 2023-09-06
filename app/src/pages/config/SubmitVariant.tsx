@@ -17,8 +17,14 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
   const submitToDB = async () => {
     const variantUuid = uuidv4();
 
-    const { directoryPath, experimentId, experimentPath, fullFilePath } =
-      location.state;
+    const {
+      directoryPath,
+      experimentId,
+      experimentPath,
+      fullFilePath,
+      repoId,
+    } = location.state;
+    console.log('the state', location.state);
     try {
       console.log(props.filePath);
       const variantObj = {
@@ -26,7 +32,7 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
         weight: props.weight,
         experimentId: props.experiment_ID,
         experimentPath,
-        fullFilePath,
+        directoryPath,
       };
       await window.electronAPI.addVariant(variantObj);
       console.log('variant added');

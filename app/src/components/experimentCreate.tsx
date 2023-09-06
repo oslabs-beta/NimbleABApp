@@ -54,7 +54,8 @@ const ExperimentCreate = (): React.JSX.Element => {
     const { basename, fullPath } = await window.electronAPI.openFile();
     console.log(basename);
     setFilePath(basename);
-    setFullFilePath(fullFilePath);
+    console.log('the full path', fullPath);
+    setFullFilePath(fullPath);
     Dispatch(updateFullFilePath(fullPath));
     const paths = await window.electronAPI.parsePaths();
     setDirPaths(paths);
@@ -101,7 +102,7 @@ const ExperimentCreate = (): React.JSX.Element => {
             experimentId,
             repoId,
             experimentName,
-            fullFilePath,
+            directoryPath: fullFilePath,
           }}
           replace={true}
         />
