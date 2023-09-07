@@ -392,7 +392,7 @@ async function handleAddExperiment(event, experiment) {
 async function handleAddVariant(event, variant) {
   // destructure the variant object
   console.log(variant);
-  const { filePath, weight, experimentId, fullFilePath, experimentPath } =
+  const { filePath, weight, experimentId, directoryPath, experimentPath } =
     variant;
   console.log(filePath);
   console.log(weight);
@@ -404,14 +404,16 @@ async function handleAddVariant(event, variant) {
         filePath: filePath,
         weights: weight,
         Experiment_Id: experimentId,
+
         // this is on the schema but may not be needed. For now a blank array
       },
     });
 
     //Currently doesn't work cause need to connect full file path to redux
     fs.copyFile(
-      path.join(fullFilePath, experimentPath, `page.js`),
-      path.join(fullFilePath, experimentPath, '[variants]', `${filePath}.js`)
+      path.join(directoryPath, experimentPath, `page.js`),
+      path.join(directoryPath, experimentPath, '[variants]', `${filePath}.js`),
+      (err) => console.log(err)
     );
     console.log('New variant added');
   } catch (error) {
@@ -483,9 +485,23 @@ async function handleAddRepo(event, repo) {
   }
 }
 
+//Creates Text Editor Modal
 function handleCreateTextEditor() {
   createTextEditorModal();
   // console.log('hi');
+}
+
+//Gets the Repo from Local DB
+async function handleGetRepo(event, repoId) {
+  try {
+    const repo = await prisma.Repos.findFirst({
+      where: { id: repoId },
+    });
+    console.log(repo);
+    return repo;
+  } catch (err) {
+    console.log(err);
+  }
 }
 //Event Listeners for Client Side Actions
 ipcMain.handle('dialog:openFile', handleFileOpen);
@@ -497,5 +513,5 @@ ipcMain.handle('database:addExperiment', handleAddExperiment);
 ipcMain.handle('database:addVariant', handleAddVariant);
 ipcMain.handle('database:getVariants', handleGetVariants);
 ipcMain.handle('database:addRepo', handleAddRepo);
-
+ipcMain.handle('database:getRepo', handleGetRepo);
 //File System API

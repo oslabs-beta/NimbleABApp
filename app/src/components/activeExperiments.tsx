@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 const activeExperiment = (): React.JSX.Element => {
   const [experiments, setExperiments] = useState([]);
   const [receivedExperiments, setReceivedExperiments] = useState(false);
+
   const getExperiments = async (): Promise<void> => {
     //Gets All experiments from DB
     const data = await window.electronAPI.getExperiments();

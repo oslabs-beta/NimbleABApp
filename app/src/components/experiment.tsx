@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { IElectronAPI } from '../../../renderer';
 interface experimentProps {
   data: any;
 }
 const experiment = ({ data }: experimentProps): React.JSX.Element => {
   const [clicked, setClicked] = useState(false);
+  const [fullFilePath, setFullFilePath] = useState('');
 
-  const fullFilePath = useSelector(
-    (state: any) => state.experiments.fullFilePath
-  );
-  console.log(fullFilePath);
+  // console.log(fullFilePath);
   //Display relevant experiment data
   const {
     Experiment_Name,
@@ -20,7 +19,9 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
     experiment_uuid,
   } = data;
   //When Edit button is clicked take to Config experiment page
-  function handleEditClick(): void {
+  async function handleEditClick(): Promise<any> {
+    const { FilePath } = await window.electronAPI.getRepo(Repo_id);
+    setFullFilePath(FilePath);
     setClicked(true);
   }
   return (
@@ -42,7 +43,7 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
             experimentPath: experiment_path,
             repoId: Repo_id,
             experimentId: experiment_uuid,
-            directory_path: fullFilePath,
+            directoryPath: fullFilePath,
             //Need to also send james the fulldirectorypath
           }}
           replace={true}

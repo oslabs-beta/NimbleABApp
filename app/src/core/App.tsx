@@ -4,7 +4,7 @@ import AppRoutes from './routes';
 import { HashRouter } from 'react-router-dom';
 import Nav from './nav';
 import { Provider } from 'react-redux';
-import { store } from '../redux/store';
+import store from '../redux/store';
 // import TestingConfig from "../pages/config/Config";
 
 const App = () => {
