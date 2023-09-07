@@ -1,18 +1,48 @@
 [
-    {
-      "id": "variant1",
-      "fileName": "variant1.html",
-      "weight": 50
-    },
-    {
-      "id": "variant2",
-      "fileName": "variant2.html",
-      "weight": 30
-    },
-    {
-      "id": "variant3",
-      "fileName": "variant3.html",
-      "weight": 20
-    }
-  ]
-  
+  {
+    "experiment_path": "/blog",
+    "experiment_name": "test1",
+    "experiment_id": "59f734ad-078e-4665-a783-537af9f92bf4",
+    "device_type": "mobile",
+    "variants": [
+      {
+        "id": "05292789-0f23-4b86-b940-d8845038607e",
+        "fileName": "1",
+        "weight": 33
+      },
+      {
+        "id": "82846299-fa14-4bee-a170-134d5e9d77ee",
+        "fileName": "2",
+        "weight": 33
+      },
+      {
+        "id": "9d323bda-3ddd-4f8d-9397-0fdee2fb4108",
+        "fileName": "3",
+        "weight": 33
+      }
+    ]
+  },
+  {
+    "experiment_path": "/home",
+    "experiment_name": "test2",
+    "experiment_id": "test2id",
+    "device_type": "mobile",
+    "variants": [
+      {
+        "id": "1",
+        "fileName": "variant1.html",
+        "weight": 50
+      },
+      {
+        "id": "2",
+        "fileName": "variant2.html",
+        "weight": 30
+      },
+      {
+        "id": "3",
+        "fileName": "variant3.html",
+        "weight": 20
+      }
+    ]
+  }
+]
