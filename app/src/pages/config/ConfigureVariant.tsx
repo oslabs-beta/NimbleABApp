@@ -12,7 +12,7 @@ const ConfigureVariant = () => {
     // when we submit variant we should add a variant to local, close off the row. The table component will read the state change and update
 
     // add to local
-    window.electronAPI.addVariant;
+    window.electronAPI.addVariant(variantObj);
   };
   //
   return (
