@@ -16,9 +16,6 @@ const Home = (): React.JSX.Element => {
       <div className="h-screen w-full bg-primary flex p-10 gap-2 font-mono">
         <ExperimentCreate></ExperimentCreate>
         <ActiveExperiment></ActiveExperiment>
-        <button>
-          <Link to="/config"> Configure new experiment</Link>
-        </button>
       </div>
       <button className="btn btn-primary" onClick={handleModal}>
         Create Text Modal
