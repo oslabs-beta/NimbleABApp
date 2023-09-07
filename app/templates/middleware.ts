@@ -3,6 +3,9 @@ import { NextRequest, NextResponse, userAgent } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 // importing the variants config from the JSON file
 import variantsConfig from './staticConfig.json';
+import { NextURL } from 'next/dist/server/web/next-url';
+
+import { ChildProcess } from 'child_process';
 
 // initialize Supabase client - https://supabase.com/docs/reference/javascript/initializing
 const supabaseUrl = 'https://tawrifvzyjqcddwuqjyq.supabase.co';
@@ -10,15 +13,24 @@ const supabaseKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhd3JpZnZ6eWpxY2Rkd3VxanlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI2NTc2MjcsImV4cCI6MjAwODIzMzYyN30.-VekGbd6Iwey0Q32SQA0RxowZtqSlDptBhlt2r-GZBw';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+//initialize experiment - only input f
+// const experiment = variants.filter("exper")
+
 // defining a type for the variant with properties: id, fileName, and weight
+
 type Variant = {
   id: string;
   fileName: string;
   weight: number;
+  // experiment_id: string;
+};
+
+export const config = {
+  matcher: '/blog', //experiment path
 };
 
 // middleware function that determines which variant to serve based on device type and possibly cookie values
-export async function staticMiddleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   // extract the device details from the user agent of the request - https://nextjs.org/docs/messages/middleware-parse-user-agent
   const { device } = userAgent(req);
 
@@ -48,24 +60,50 @@ export async function staticMiddleware(req: NextRequest) {
     return variants[0];
   }
 
-  // check for existing cookie per https://nextjs.org/docs/app/api-reference/functions/next-request
-  // convert it to a string if it exists
-  const variantID = req.cookies.get('variantID')?.toString();
+  // check for existing cookie
+  const expVariantID = req.cookies.get('expVariantID')?.value;
 
-  let chosenVariant;
+  // choose an experiment and then a variant inside the experiment
+  const experiment = variantsConfig.filter(
+    (experiments) => experiments.experiment_name === 'test1'
+  );
 
-  // if a variant ID exists in the cookies, use it to find the corresponding variant
-  if (variantID) {
-    chosenVariant =
-      variantsConfig.find((v) => v.id === variantID) ||
-      chooseVariant(deviceType, variantsConfig); // if not found, choose a new variant based on device type and weights
-  } else {
-    // if no variant ID in the cookies, choose a variant based on device type and weights
-    chosenVariant = chooseVariant(deviceType, variantsConfig);
+  const experimentId = experiment[0].experiment_id; //change string based on test name
+  // console.log(experimentId);
+
+  // prioritize experiment selection via query parameter
+  // first check if a variant has been selected based on the expVariantID cookie
+  // if not, then choose a variant based on the device type and the weights of the available variants
+
+  let chosenExperiment: string = expVariantID
+    ? expVariantID?.split('_')[0]
+    : experimentId;
+  // console.log('chosenExperiment :>> ', chosenExperiment);
+
+  async function getVariant(varID: string): Promise<Variant> {
+    // console.log(experiment[0].variants);
+    return experiment[0].variants.filter((variant) => variant.id === varID)[0];
   }
+  // if (expVariantID) console.log(getVariant(expVariantID?.split('_')[1]));
 
+  let chosenVariant: Variant = expVariantID
+    ? await getVariant(expVariantID.split('_')[1])
+    : chooseVariant(deviceType, experiment[0].variants);
+
+  // console.log('chosenVariant :>> ', chosenVariant);
   // asynchronously call the increment RPC function in Supabase without waiting for it to complete
   // create a separate static_variants table and static_increment function for the staticConfig (https://supabase.com/dashboard/project/tawrifvzyjqcddwuqjyq/database/functions) per https://www.youtube.com/watch?v=n5j_mrSmpyc
+
+  await supabase.from('static_variants').upsert(
+    {
+      id: chosenVariant.id,
+      fileName: chosenVariant.fileName,
+      weight: chosenVariant.weight,
+      experiment_id: experimentId,
+    },
+    { onConflict: 'id' }
+  );
+
   supabase
     .rpc('static_increment', { row_id: chosenVariant.id })
     .then(({ data, error }) => {
@@ -77,11 +115,18 @@ export async function staticMiddleware(req: NextRequest) {
     });
 
   // rewrite the request to serve the chosen variant's file
-  const res = NextResponse.rewrite(`/${chosenVariant.fileName}`);
+  // console.log(chosenVariant.id);
+  const url = req.nextUrl;
+  url.pathname = url.pathname.replace(
+    '/blog',
+    `/blog/${chosenVariant.fileName}`
+  );
+  // console.log(url);
+  const res = NextResponse.rewrite(url);
 
   // if the variant ID doesn't exist in the cookies, set it now for future requests
-  if (!variantID) {
-    res.cookies.set('variantID', chosenVariant.id, {
+  if (!expVariantID) {
+    res.cookies.set('expVariantID', `${experimentId}_${chosenVariant.id}`, {
       path: '/',
       httpOnly: true,
       maxAge: 10 * 365 * 24 * 60 * 60, // set the cookie to expire in 10 years
