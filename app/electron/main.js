@@ -384,6 +384,8 @@ async function handleAddExperiment(event, experiment) {
       console.log(err)
     );
 
+    //initialize configuration file
+
     //copies middleware file into new directory
     fs.copyFile(
       path.join(__dirname, '../templates/staticMiddleware.ts'),
@@ -436,6 +438,8 @@ async function handleAddVariant(event, variant) {
       error
     );
   }
+
+  //Add to the configuration file
 }
 
 async function handleGetVariants(event, experimentId) {
