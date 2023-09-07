@@ -485,9 +485,23 @@ async function handleAddRepo(event, repo) {
   }
 }
 
+//Creates Text Editor Modal
 function handleCreateTextEditor() {
   createTextEditorModal();
   // console.log('hi');
+}
+
+//Gets the Repo from Local DB
+async function handleGetRepo(event, repoId) {
+  try {
+    const repo = await prisma.Repos.findFirst({
+      where: { id: repoId },
+    });
+    console.log(repo);
+    return repo;
+  } catch (err) {
+    console.log(err);
+  }
 }
 //Event Listeners for Client Side Actions
 ipcMain.handle('dialog:openFile', handleFileOpen);
@@ -499,5 +513,5 @@ ipcMain.handle('database:addExperiment', handleAddExperiment);
 ipcMain.handle('database:addVariant', handleAddVariant);
 ipcMain.handle('database:getVariants', handleGetVariants);
 ipcMain.handle('database:addRepo', handleAddRepo);
-
+ipcMain.handle('database:getRepo', handleGetRepo);
 //File System API
