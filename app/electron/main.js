@@ -47,8 +47,11 @@ async function createWindow() {
   }
 
   win = new BrowserWindow({
-    width: 1000,
+    width: 1100,
     height: 800,
+    minHeight: 900,
+    minWidth: 600,
+    icon: path.join(__dirname, '../../images/icon.png'),
     title: 'Application is starting up...',
     webPreferences: {
       devTools: true,
@@ -375,8 +378,17 @@ async function handleAddExperiment(event, experiment) {
       device_type: Device_Type,
     });
     console.log(directory_path);
+
+    //Creates a variants folder in the experiment path
     fs.mkdir(path.join(directory_path, experiment_path, '[variants]'), (err) =>
       console.log(err)
+    );
+
+    //copies middleware file into new directory
+    fs.copyFile(
+      path.join(__dirname, '../templates/staticMiddleware.ts'),
+      path.join(directoryPath, `middleware.ts`),
+      (err) => console.log(err)
     );
     console.log('New experiment created');
   } catch (error) {
@@ -409,7 +421,7 @@ async function handleAddVariant(event, variant) {
       },
     });
 
-    //Currently doesn't work cause need to connect full file path to redux
+    //Creates variant in variants folder
     fs.copyFile(
       path.join(directoryPath, experimentPath, `page.js`),
       path.join(directoryPath, experimentPath, '[variants]', `${filePath}.js`),

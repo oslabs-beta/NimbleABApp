@@ -76,7 +76,7 @@ const ExperimentCreate = (): React.JSX.Element => {
         placeholder="Experiment Name"
       ></input>
       <div className="flex mt-4 gap-10 mb-4 pr-2 border w-96 rounded-md ">
-        <button onClick={handleClick} className="btn btn-secondary">
+        <button onClick={handleClick} className="btn btn-success">
           Open Directory
         </button>
         <div className="flex growplace-content-center">
@@ -88,10 +88,7 @@ const ExperimentCreate = (): React.JSX.Element => {
         setExperimentPath={setExperimentPath}
         disabled={allowSelect}
       ></SelectPath>
-      <button
-        onClick={handleCreateExperiment}
-        className="btn btn-secondary mt-4"
-      >
+      <button onClick={handleCreateExperiment} className="btn btn-success mt-4">
         Create Experiment
       </button>
       {configPage && (
