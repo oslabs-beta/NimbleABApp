@@ -17,6 +17,7 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
   const submitToDB = async () => {
     const variantUuid = uuidv4();
 
+    console.log(variantUuid + " is variant uuid");
     const {
       directoryPath,
       experimentId,

@@ -22,6 +22,7 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
   //When Edit button is clicked take to Config experiment page
   async function handleEditClick(): Promise<any> {
     const { FilePath } = await window.electronAPI.getRepo(Repo_id);
+    console.log("File path in the local sqlite db", FilePath);
     setFullFilePath(FilePath);
     updateRepoPath(FilePath);
     setClicked(true);
