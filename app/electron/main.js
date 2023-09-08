@@ -462,6 +462,12 @@ async function handleAddVariant(event, variant) {
     });
 
     //Add variants to supabase
+    axios.post('https://nimblebackend-te9u.onrender.com/createVariant', {
+      variant_id: variantUuid,
+      experimentId: experimentId,
+      variant_weight: weight,
+      variant_name: filePath
+    });
 
     //Creates variant in variants folder
     fs.copyFile(
