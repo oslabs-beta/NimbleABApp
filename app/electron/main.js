@@ -6,24 +6,24 @@ const {
   ipcMain,
   dialog,
   Menu,
-} = require('electron');
-const Store = require('electron-store');
+} = require("electron");
+const Store = require("electron-store");
 const {
   default: installExtension,
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
-} = require('electron-devtools-installer');
-const axios = require('axios');
-const prisma = require('./prisma.ts');
-const reflect = require('reflect-metadata');
+} = require("electron-devtools-installer");
+const axios = require("axios");
+const prisma = require("./prisma.ts");
+const reflect = require("reflect-metadata");
 
-const Protocol = require('./protocol');
-const MenuBuilder = require('./menu');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const { data } = require('autoprefixer');
-const isDev = process.env.NODE_ENV === 'development';
+const Protocol = require("./protocol");
+const MenuBuilder = require("./menu");
+const path = require("path");
+const fs = require("fs");
+const crypto = require("crypto");
+const { data } = require("autoprefixer");
+const isDev = process.env.NODE_ENV === "development";
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
 
@@ -36,7 +36,7 @@ let childWindow;
 
 let menuBuilder;
 const store = new Store({
-  path: app.getPath('userData'),
+  path: app.getPath("userData"),
 });
 
 async function createWindow() {
@@ -51,8 +51,8 @@ async function createWindow() {
     height: 800,
     minHeight: 900,
     minWidth: 600,
-    icon: path.join(__dirname, '../../images/icon.png'),
-    title: 'Application is starting up...',
+    icon: path.join(__dirname, "../../images/icon.png"),
+    title: "Application is starting up...",
     webPreferences: {
       devTools: true,
       nodeIntegration: false,
@@ -60,7 +60,7 @@ async function createWindow() {
       nodeIntegrationInSubFrames: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.ts'),
+      preload: path.join(__dirname, "preload.ts"),
       // disableBlinkFeatures: "Auxclick",
     },
   });
@@ -74,16 +74,16 @@ async function createWindow() {
     win.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
-  win.webContents.on('did-finish-load', () => {
+  win.webContents.on("did-finish-load", () => {
     win.setTitle(`Nimble Labs`);
   });
 
   //Loads DevTools in DevMode
   if (isDev) {
-    win.webContents.once('dom-ready', async () => {
+    win.webContents.once("dom-ready", async () => {
       await installExtension([REDUX_DEVTOOLS])
         .then((name) => console.log(`Added Extension ${name}`))
-        .catch((err) => console.log('An error occured: ', err))
+        .catch((err) => console.log("An error occured: ", err))
         .finally(() => {
           win.webContents.openDevTools();
         });
@@ -91,13 +91,13 @@ async function createWindow() {
   }
 
   //Emits when window is closed
-  win.on('closed', () => {
+  win.on("closed", () => {
     win = null;
   });
 
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
   const ses = session;
-  const partition = 'default';
+  const partition = "default";
   ses
     .fromPartition(
       partition
@@ -122,14 +122,16 @@ async function createWindow() {
 }
 
 //Function to create text editor modal
-async function createTextEditorModal() {
+async function createTextEditorModal(filePath = null) {
+  // the filepath argument is to be used to place the user into whatever path contains their variants that way they don't need to
+  // traverse the whole file tree to get there
   if (!isDev) {
     protocol.registerBufferProtocol(Protocol.scheme, Protocol.requestHandler);
   }
   childWindow = new BrowserWindow({
     width: 1000,
     height: 800,
-    title: 'Application is starting up...',
+    title: "Application is starting up...",
     parent: win,
     modal: true,
     webPreferences: {
@@ -139,7 +141,7 @@ async function createTextEditorModal() {
       nodeIntegrationInSubFrames: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.ts'),
+      preload: path.join(__dirname, "preload.ts"),
     },
   });
 
@@ -149,16 +151,16 @@ async function createTextEditorModal() {
     childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`);
   }
 
-  childWindow.webContents.on('did-finish-load', () => {
+  childWindow.webContents.on("did-finish-load", () => {
     childWindow.setTitle(`Nimble Labs`);
   });
 
   //Loads Redux DevTools when in DevMode
   if (isDev) {
-    childWindow.webContents.once('dom-ready', async () => {
+    childWindow.webContents.once("dom-ready", async () => {
       await installExtension([REDUX_DEVTOOLS])
         .then((name) => console.log(`Added Extension ${name}`))
-        .catch((err) => console.log('An error occured: ', err))
+        .catch((err) => console.log("An error occured: ", err))
         .finally(() => {
           childWindow.webContents.openDevTools();
         });
@@ -166,13 +168,13 @@ async function createTextEditorModal() {
   }
 
   //Emits when window is closed
-  childWindow.on('closed', () => {
+  childWindow.on("closed", () => {
     childWindow = null;
   });
 
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
   const ses = session;
-  const partition = 'default';
+  const partition = "default";
   ses
     .fromPartition(
       partition
@@ -217,15 +219,15 @@ app.whenReady().then(() => {
 });
 
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
+app.on("window-all-closed", () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
-app.on('activate', () => {
+app.on("activate", () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
@@ -234,8 +236,8 @@ app.on('activate', () => {
 });
 
 // https://electronjs.org/docs/tutorial/security#12-disable-or-limit-navigation
-app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (contentsEvent, navigationUrl) => {
+app.on("web-contents-created", (event, contents) => {
+  contents.on("will-navigate", (contentsEvent, navigationUrl) => {
     /* eng-disable LIMIT_NAVIGATION_JS_CHECK  */
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [selfHost];
@@ -250,7 +252,7 @@ app.on('web-contents-created', (event, contents) => {
     }
   });
 
-  contents.on('will-redirect', (contentsEvent, navigationUrl) => {
+  contents.on("will-redirect", (contentsEvent, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [];
 
@@ -266,7 +268,7 @@ app.on('web-contents-created', (event, contents) => {
 
   // https://electronjs.org/docs/tutorial/security#11-verify-webview-options-before-creation
   contents.on(
-    'will-attach-webview',
+    "will-attach-webview",
     (contentsEvent, webPreferences, params) => {
       // Disable Node.js integration
       webPreferences.nodeIntegration = false;
@@ -287,12 +289,12 @@ app.on('web-contents-created', (event, contents) => {
       );
 
       return {
-        action: 'deny',
+        action: "deny",
       };
     }
 
     return {
-      action: 'allow',
+      action: "allow",
     };
   });
 });
@@ -300,21 +302,21 @@ app.on('web-contents-created', (event, contents) => {
 //Choose Directory Functionality
 async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog(win, {
-    properties: ['openDirectory'],
+    properties: ["openDirectory"],
   });
   if (!canceled) {
-    store.set('directoryPath', filePaths[0]);
+    store.set("directoryPath", filePaths[0]);
     return { basename: path.basename(filePaths[0]), fullPath: filePaths[0] };
   }
 }
 
 //Gets all paths for Next Js Directory
 function handleDirectoryPaths() {
-  const dirPath = store.get('directoryPath');
+  const dirPath = store.get("directoryPath");
   console.log(dirPath);
   const pathsArr = [];
   const fullPaths = [dirPath];
-  const map = { app: '/' };
+  const map = { app: "/" };
 
   //Recurses through directory only pulling acitve paths
   // Can make this more refined by looking for only directories with page.jsx in it
@@ -326,12 +328,12 @@ function handleDirectoryPaths() {
 
       // console.log(file);
       if (stats.isDirectory()) {
-        if (file[0] === '(') {
+        if (file[0] === "(") {
           parsePaths(path.join(dirPath, file));
         } else {
           if (map[file]) pathsArr.push(map[file]);
-          else pathsArr.push('/' + file);
-          fullPaths.push(dirPath + '/' + file);
+          else pathsArr.push("/" + file);
+          fullPaths.push(dirPath + "/" + file);
           parsePaths(path.join(dirPath, file));
         }
       }
@@ -339,13 +341,13 @@ function handleDirectoryPaths() {
   }
 
   parsePaths(dirPath);
-  store.set('dirPaths', fullPaths);
-  console.log(store.get('dirPaths'));
+  store.set("dirPaths", fullPaths);
+  console.log(store.get("dirPaths"));
   return pathsArr;
 }
 
 function handleGetExperiments() {
-  const experiments = store.get('experiments');
+  const experiments = store.get("experiments");
   return experiments;
 }
 
@@ -360,78 +362,81 @@ async function handleAddExperiment(event, experiment) {
     experiment_uuid,
     directory_path,
   } = experiment;
-  let new_directory_path = directory_path
-  console.log("basename", path.basename(directory_path))
-  if (path.basename(directory_path) === 'src') new_directory_path += '/app'
+  let new_directory_path = directory_path;
+  console.log("basename", path.basename(directory_path));
+  if (path.basename(directory_path) === "src") new_directory_path += "/app";
   try {
-    
-
     //Creates a variants folder in the experiment path
-    fs.mkdir(path.join(new_directory_path, experiment_path, '[variants]'), (err) =>
-      console.log(err)
+    fs.mkdir(
+      path.join(new_directory_path, experiment_path, "[variants]"),
+      (err) => console.log(err)
     );
-
-   
 
     //copies middleware file into new directory
     fs.copyFile(
-      path.join(__dirname, '../templates/middleware.ts'),
-      path.join(directory_path, `middleware.ts`),fs.constants.COPYFILE_EXCL,
+      path.join(__dirname, "../templates/middleware.ts"),
+      path.join(directory_path, `middleware.ts`),
+      fs.constants.COPYFILE_EXCL,
       (err) => console.log(err)
-    )
+    );
 
     await fs.copyFile(
-      path.join(__dirname, '../templates/nimble.config.json'),
-      path.join(directory_path,'nimble.config.json'),
+      path.join(__dirname, "../templates/nimble.config.json"),
+      path.join(directory_path, "nimble.config.json"),
       fs.constants.COPYFILE_EXCL,
-      (err)=> console.log(err))
+      (err) => console.log(err)
+    );
 
-    console.log('reached this ')
-    const data = fs.readFileSync(path.join(directory_path, 'nimble.config.json'))
-  
-    const parsed_data = JSON.parse(data)
-    
-    const paths = parsed_data.map((el)=> el.experiment_path)
-    console.log(paths)
-    if (!paths.includes(experiment_path)){
+    console.log("reached this ");
+    const data = fs.readFileSync(
+      path.join(directory_path, "nimble.config.json")
+    );
+
+    const parsed_data = JSON.parse(data);
+
+    const paths = parsed_data.map((el) => el.experiment_path);
+    console.log(paths);
+    if (!paths.includes(experiment_path)) {
       parsed_data.push({
-      "experiment_path":experiment_path,
-      "experiment_name": Experiment_name,
-      "experiment_id": experiment_uuid,
-      "device_type": Device_Type,
-      "variants": []
-    })
-    const newExperiment = await prisma.experiments.create({
-      data: {
-        Experiment_Name: Experiment_name,
-        Device_Type,
-        Repo_id,
+        experiment_path: experiment_path,
+        experiment_name: Experiment_name,
+        experiment_id: experiment_uuid,
+        device_type: Device_Type,
+        variants: [],
+      });
+      const newExperiment = await prisma.experiments.create({
+        data: {
+          Experiment_Name: Experiment_name,
+          Device_Type,
+          Repo_id,
+          experiment_path,
+          experiment_uuid,
+        },
+      });
+      //Adds Experiment to database on supabase
+      axios.post("https://nimblebackend-te9u.onrender.com/createExperiment", {
+        experiment_name: Experiment_name,
+        experimentId: experiment_uuid,
         experiment_path,
-        experiment_uuid,
-      },
-    });
-    //Adds Experiment to database on supabase
-    axios.post('https://nimblebackend-te9u.onrender.com/createExperiment', {
-      experiment_name: Experiment_name,
-      experimentId: experiment_uuid,
-      experiment_path,
-      device_type: Device_Type,
-    });
-    console.log(directory_path);
-    }  else {
-      const msg = "Experiment Already Created"
-      return msg
+        device_type: Device_Type,
+      });
+      console.log(directory_path);
+    } else {
+      const msg = "Experiment Already Created";
+      return msg;
     }
-    
 
-    fs.writeFileSync(path.join(directory_path, 'nimble.config.json'), JSON.stringify(parsed_data))
+    fs.writeFileSync(
+      path.join(directory_path, "nimble.config.json"),
+      JSON.stringify(parsed_data)
+    );
 
-    console.log('New experiment created');
+    console.log("New experiment created");
   } catch (error) {
     console.error(
-      'Error creating experiment with name ',
+      "Error creating experiment with name ",
       experiment,
-      'error message: ',
+      "error message: ",
       error
     );
   }
@@ -440,12 +445,18 @@ async function handleAddExperiment(event, experiment) {
 async function handleAddVariant(event, variant) {
   // destructure the variant object
   console.log(variant);
-  const { filePath, weight, experimentId, directoryPath, experimentPath, variantUuid } =
-    variant;
-   let new_directory_path = directoryPath
-   console.log("basename", path.basename(directoryPath))
-   if (path.basename(directoryPath) === 'src') new_directory_path+="/app"
- 
+  const {
+    filePath,
+    weight,
+    experimentId,
+    directoryPath,
+    experimentPath,
+    variantUuid,
+  } = variant;
+  let new_directory_path = directoryPath;
+  console.log("basename", path.basename(directoryPath));
+  if (path.basename(directoryPath) === "src") new_directory_path += "/app";
+
   console.log(filePath);
   console.log(weight);
   console.log(experimentId);
@@ -462,46 +473,56 @@ async function handleAddVariant(event, variant) {
     });
 
     //Add variants to supabase
-    axios.post('https://nimblebackend-te9u.onrender.com/createVariant', {
+    axios.post("https://nimblebackend-te9u.onrender.com/createVariant", {
       variant_id: variantUuid,
       experimentId: experimentId,
       variant_weight: weight,
-      variant_name: filePath
+      variant_name: filePath,
     });
 
     //Creates variant in variants folder
     fs.copyFile(
       path.join(new_directory_path, experimentPath, `page.js`),
-      path.join(new_directory_path, experimentPath, '[variants]', `${filePath}.js`),
+      path.join(
+        new_directory_path,
+        experimentPath,
+        "[variants]",
+        `${filePath}.js`
+      ),
       (err) => console.log(err)
     );
 
-    const data = fs.readFileSync(path.join(directoryPath, 'nimble.config.json'))
+    const data = fs.readFileSync(
+      path.join(directoryPath, "nimble.config.json")
+    );
     const parsed_data = JSON.parse(data);
     //Adds variant to corresponding experiment
-    for (let i=0;i<parsed_data.length;i++){
-      if (parsed_data[i].experiment_path === experimentPath){
+    for (let i = 0; i < parsed_data.length; i++) {
+      if (parsed_data[i].experiment_path === experimentPath) {
         parsed_data[i].variants.push({
-          "id": variantUuid,
-          "fileName": filePath,
-          "weight": weight
-        })
+          id: variantUuid,
+          fileName: filePath,
+          weight: weight,
+        });
       }
     }
-    fs.writeFileSync(path.join(directoryPath, 'nimble.config.json'), JSON.stringify(parsed_data))
-    console.log('New variant added');
+    fs.writeFileSync(
+      path.join(directoryPath, "nimble.config.json"),
+      JSON.stringify(parsed_data)
+    );
+    console.log("New variant added");
   } catch (error) {
     console.error(
-      'Error creating variant with data: ',
+      "Error creating variant with data: ",
       variant,
-      'error message: ',
+      "error message: ",
       error
     );
   }
 }
 
 async function handleGetVariants(event, experimentId) {
-  console.log('reached the getVariants function');
+  console.log("reached the getVariants function");
   try {
     const variants = await prisma.variants.findMany({
       where: {
@@ -512,16 +533,16 @@ async function handleGetVariants(event, experimentId) {
     return JSON.stringify(variants);
   } catch (error) {
     console.error(
-      'Error creating variant with experimentID ',
+      "Error creating variant with experimentID ",
       experimentId,
-      'error message: ',
+      "error message: ",
       error
     );
   }
 }
 
 async function handleGetExperiments(event, experimentId) {
-  console.log('reached the getExperiments function');
+  console.log("reached the getExperiments function");
   try {
     const experiments = await prisma.experiments.findMany({
       where: {
@@ -532,9 +553,9 @@ async function handleGetExperiments(event, experimentId) {
     return JSON.stringify(experiments);
   } catch (error) {
     console.error(
-      'Error fetching experiment with experimentID ',
+      "Error fetching experiment with experimentID ",
       experimentId,
-      'error message: ',
+      "error message: ",
       error
     );
   }
@@ -560,8 +581,8 @@ async function handleAddRepo(event, repo) {
 }
 
 //Creates Text Editor Modal
-function handleCreateTextEditor() {
-  createTextEditorModal();
+function handleCreateTextEditor(filePath = null) {
+  createTextEditorModal(filePath);
   // console.log('hi');
 }
 
@@ -578,14 +599,14 @@ async function handleGetRepo(event, repoId) {
   }
 }
 //Event Listeners for Client Side Actions
-ipcMain.handle('dialog:openFile', handleFileOpen);
-ipcMain.handle('directory:parsePaths', handleDirectoryPaths);
-ipcMain.handle('experiment:getExperiments', handleGetExperiments);
-ipcMain.handle('modal:createModal', handleCreateTextEditor);
+ipcMain.handle("dialog:openFile", handleFileOpen);
+ipcMain.handle("directory:parsePaths", handleDirectoryPaths);
+ipcMain.handle("experiment:getExperiments", handleGetExperiments);
+ipcMain.handle("modal:createModal", handleCreateTextEditor);
 // Database API
-ipcMain.handle('database:addExperiment', handleAddExperiment);
-ipcMain.handle('database:addVariant', handleAddVariant);
-ipcMain.handle('database:getVariants', handleGetVariants);
-ipcMain.handle('database:addRepo', handleAddRepo);
-ipcMain.handle('database:getRepo', handleGetRepo);
+ipcMain.handle("database:addExperiment", handleAddExperiment);
+ipcMain.handle("database:addVariant", handleAddVariant);
+ipcMain.handle("database:getVariants", handleGetVariants);
+ipcMain.handle("database:addRepo", handleAddRepo);
+ipcMain.handle("database:getRepo", handleGetRepo);
 //File System API
