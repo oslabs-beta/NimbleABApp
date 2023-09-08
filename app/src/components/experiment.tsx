@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { IElectronAPI } from '../../../renderer';
+import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { IElectronAPI } from "../../../renderer";
+import { updateRepoPath } from "../redux/experimentsSlice";
 interface experimentProps {
   data: any;
 }
 const experiment = ({ data }: experimentProps): React.JSX.Element => {
   const [clicked, setClicked] = useState(false);
-  const [fullFilePath, setFullFilePath] = useState('');
+  const [fullFilePath, setFullFilePath] = useState("");
 
   // console.log(fullFilePath);
   //Display relevant experiment data
@@ -22,6 +23,7 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
   async function handleEditClick(): Promise<any> {
     const { FilePath } = await window.electronAPI.getRepo(Repo_id);
     setFullFilePath(FilePath);
+    updateRepoPath(FilePath);
     setClicked(true);
   }
   return (

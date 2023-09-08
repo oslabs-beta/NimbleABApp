@@ -63,7 +63,7 @@ const TestingConfig: React.FC = () => {
   const getVariants = async (id: number | string) => {
     try {
       // this is a typescript error that doesn't prevent us from running. We're going to leave it this way and debut post demo
-      const variantsString = await window.electronAPI.getVariants();
+      const variantsString = await window.electronAPI.getVariants(experimentId);
       const variants = JSON.parse(variantsString);
 
       console.log("Variants retrieved: ", variants);
@@ -96,13 +96,17 @@ const TestingConfig: React.FC = () => {
 
   // component functionality: get experiment if exists on user's local
   async function getExperimentdata() {
-    return await window.electronAPI.getExperiments();
+    const experimentData = await window.electronAPI.getExperiments();
+    // if experiment data is falsy, inform the user
+    if (!experimentData) {
+      alert("No experiment was found");
+    } else return experimentData;
   }
 
   async function main() {
     try {
-      // const experimentObjectString = await getExperimentdata();
-        
+      const experimentObjectString = await getExperimentdata();
+
       const experimentObject = JSON.parse(experimentObjectString);
 
       // this returns an array. We should display these experiments in a drop down, and let the user configure which is active
