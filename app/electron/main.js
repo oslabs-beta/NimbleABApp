@@ -312,7 +312,7 @@ async function handleFileOpen() {
 function handleDirectoryPaths() {
   const dirPath = store.get('directoryPath');
   console.log(dirPath);
-  const pathsArr = ['/'];
+  const pathsArr = [];
   const fullPaths = [dirPath];
   const map = { app: '/' };
 
@@ -360,6 +360,9 @@ async function handleAddExperiment(event, experiment) {
     experiment_uuid,
     directory_path,
   } = experiment;
+  let new_directory_path = directory_path
+  console.log("basename", path.basename(directory_path))
+  if (path.basename(directory_path) === 'src') new_directory_path += '/app'
   try {
     const newExperiment = await prisma.experiments.create({
       data: {
@@ -380,7 +383,7 @@ async function handleAddExperiment(event, experiment) {
     console.log(directory_path);
 
     //Creates a variants folder in the experiment path
-    fs.mkdir(path.join(directory_path, experiment_path, '[variants]'), (err) =>
+    fs.mkdir(path.join(new_directory_path, experiment_path, '[variants]'), (err) =>
       console.log(err)
     );
 
@@ -389,11 +392,11 @@ async function handleAddExperiment(event, experiment) {
     //copies middleware file into new directory
     fs.copyFile(
       path.join(__dirname, '../templates/middleware.ts'),
-      path.join(directoryPath, `middleware.ts`),fs.constants.COPYFILE_EXCL,
+      path.join(directory_path, `middleware.ts`),fs.constants.COPYFILE_EXCL,
       (err) => console.log(err)
     )
 
-    fs.copyFile(
+    fs.copyFileSync(
       path.join(__dirname, '../templates/nimble.config.json'),
       path.join(directory_path,'nimble.config.json'),
       fs.constants.COPYFILE_EXCL,
@@ -428,6 +431,10 @@ async function handleAddVariant(event, variant) {
   console.log(variant);
   const { filePath, weight, experimentId, directoryPath, experimentPath, variantUuid } =
     variant;
+   let new_directory_path = directoryPath
+   console.log("basename", path.basename(directoryPath))
+   if (path.basename(directoryPath) === 'src') new_directory_path+="/app"
+ 
   console.log(filePath);
   console.log(weight);
   console.log(experimentId);
@@ -447,12 +454,12 @@ async function handleAddVariant(event, variant) {
 
     //Creates variant in variants folder
     fs.copyFile(
-      path.join(directoryPath, experimentPath, `page.js`),
-      path.join(directoryPath, experimentPath, '[variants]', `${filePath}.js`),
+      path.join(new_directory_path, experimentPath, `page.js`),
+      path.join(new_directory_path, experimentPath, '[variants]', `${filePath}.js`),
       (err) => console.log(err)
     );
 
-    const data = fs.readFileSync(path.join(directory_path, 'nimble.config.json'))
+    const data = fs.readFileSync(path.join(directoryPath, 'nimble.config.json'))
     const parsed_data = JSON.parse(data);
     //Adds variant to corresponding experiment
     for (let i=0;i<parsed_data.length;i++){
@@ -464,6 +471,7 @@ async function handleAddVariant(event, variant) {
         })
       }
     }
+    fs.writeFileSync(path.join(directoryPath, 'nimble.config.json'), JSON.stringify(parsed_data))
     console.log('New variant added');
   } catch (error) {
     console.error(
