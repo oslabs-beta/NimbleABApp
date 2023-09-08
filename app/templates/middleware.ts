@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 // importing the variants config from the JSON file
 import variantsConfig from './staticConfig.json';
 import { NextURL } from 'next/dist/server/web/next-url';
-
+import { v4 as uuidv4 } from 'uuid';
 import { ChildProcess } from 'child_process';
 
 // initialize Supabase client - https://supabase.com/docs/reference/javascript/initializing
@@ -25,9 +25,9 @@ type Variant = {
   // experiment_id: string;
 };
 
-export const config = {
-  matcher: '/blog', //experiment path
-};
+// export const config = {
+//   matcher: '/blog', //experiment path
+// };
 
 // middleware function that determines which variant to serve based on device type and possibly cookie values
 export async function middleware(req: NextRequest) {
@@ -36,6 +36,19 @@ export async function middleware(req: NextRequest) {
 
   // determine the device type, whether it's mobile or desktop
   const deviceType = device.type === 'mobile' ? 'mobile' : 'desktop';
+
+  const url = req.nextUrl;
+  const currentPath = url.pathname;
+
+  // find the experiment configuration for the current path
+  const experimentConfig = variantsConfig.find(
+    (config) => config.experiment_path === currentPath
+  );
+
+  // if no experiment configuration found for the current path, return the URL without any changes
+  if (!experimentConfig) {
+    return NextResponse.rewrite(url);
+  }
 
   // function to choose a variant based on device type and weights of available variants
   function chooseVariant(
@@ -60,16 +73,19 @@ export async function middleware(req: NextRequest) {
     return variants[0];
   }
 
-  // check for existing cookie
+  // // check for existing cookie
+  // const expVariantID = req.cookies.get('expVariantID')?.value;
+
+  // // choose an experiment and then a variant inside the experiment
+  // const experiment = variantsConfig.filter(
+  //   (experiments) => experiments.experiment_name === 'test1'
+  // );
+
+  // const experimentId = experiment[0].experiment_id; //change string based on test name
+  // // console.log(experimentId);
+
+  const experimentId = experimentConfig.experiment_id;
   const expVariantID = req.cookies.get('expVariantID')?.value;
-
-  // choose an experiment and then a variant inside the experiment
-  const experiment = variantsConfig.filter(
-    (experiments) => experiments.experiment_name === 'test1'
-  );
-
-  const experimentId = experiment[0].experiment_id; //change string based on test name
-  // console.log(experimentId);
 
   // prioritize experiment selection via query parameter
   // first check if a variant has been selected based on the expVariantID cookie
@@ -80,15 +96,25 @@ export async function middleware(req: NextRequest) {
     : experimentId;
   // console.log('chosenExperiment :>> ', chosenExperiment);
 
-  async function getVariant(varID: string): Promise<Variant> {
+  async function getVariant(
+    experimentConfig: any,
+    varID: string
+  ): Promise<Variant> {
     // console.log(experiment[0].variants);
-    return experiment[0].variants.filter((variant) => variant.id === varID)[0];
+    // return experiment[0].variants.filter((variant) => variant.id === varID)[0];
+    return experimentConfig.variants.filter(
+      (variant: { id: string }) => variant.id === varID
+    )[0];
   }
   // if (expVariantID) console.log(getVariant(expVariantID?.split('_')[1]));
 
+  // let chosenVariant: Variant = expVariantID
+  //   ? await getVariant(expVariantID.split('_')[1])
+  //   : chooseVariant(deviceType, experiment[0].variants);
+
   let chosenVariant: Variant = expVariantID
-    ? await getVariant(expVariantID.split('_')[1])
-    : chooseVariant(deviceType, experiment[0].variants);
+    ? await getVariant(experimentConfig, expVariantID.split('_')[1])
+    : chooseVariant(deviceType, experimentConfig.variants);
 
   // console.log('chosenVariant :>> ', chosenVariant);
   // asynchronously call the increment RPC function in Supabase without waiting for it to complete
@@ -115,13 +141,18 @@ export async function middleware(req: NextRequest) {
     });
 
   // rewrite the request to serve the chosen variant's file
-  // console.log(chosenVariant.id);
-  const url = req.nextUrl;
+
+  // const url = req.nextUrl;
+  // url.pathname = url.pathname.replace(
+  //   '/blog',
+  //   `/blog/${chosenVariant.fileName}`
+  // );
+
   url.pathname = url.pathname.replace(
-    '/blog',
-    `/blog/${chosenVariant.fileName}`
+    currentPath,
+    `${currentPath}/${chosenVariant.fileName}`
   );
-  // console.log(url);
+
   const res = NextResponse.rewrite(url);
 
   // if the variant ID doesn't exist in the cookies, set it now for future requests
