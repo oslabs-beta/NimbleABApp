@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse, userAgent } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 // importing the variants config from the JSON file
-import variantsConfig from './staticConfig.json';
+import variantsConfig from './nimble.config.json';
 import { NextURL } from 'next/dist/server/web/next-url';
 import { v4 as uuidv4 } from 'uuid';
 import { ChildProcess } from 'child_process';
