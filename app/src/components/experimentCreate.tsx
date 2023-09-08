@@ -30,6 +30,8 @@ const ExperimentCreate = (): React.JSX.Element => {
   const [experimentId, setExperimentId] = useState(uuidv4());
   //The Repo ID
   const [repoId, setRepoId] = useState('');
+  //Error Message State
+  const [error, setError] = useState(false)
 
   async function handleCreateExperiment(): Promise<void> {
     //Add Repo and Add Experiment
@@ -46,8 +48,12 @@ const ExperimentCreate = (): React.JSX.Element => {
       experiment_uuid: experimentId,
       directory_path: fullFilePath,
     });
+    console.log(data)
+    if (data === 'Experiment Already Created') {
+      setError(true)
+    } else{
     console.log('end of new experiment post');
-    setConfigPage(true);
+    setConfigPage(true);}
   }
 
   async function handleClick() {
@@ -91,6 +97,7 @@ const ExperimentCreate = (): React.JSX.Element => {
       <button onClick={handleCreateExperiment} className="btn btn-success mt-4">
         Create Experiment
       </button>
+      {error && <p className='mt-2 text-error'>Experiment Path already in use</p>}
       {configPage && (
         <Navigate
           to="/config"

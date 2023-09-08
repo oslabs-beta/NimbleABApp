@@ -364,6 +364,43 @@ async function handleAddExperiment(event, experiment) {
   console.log("basename", path.basename(directory_path))
   if (path.basename(directory_path) === 'src') new_directory_path += '/app'
   try {
+    
+
+    //Creates a variants folder in the experiment path
+    fs.mkdir(path.join(new_directory_path, experiment_path, '[variants]'), (err) =>
+      console.log(err)
+    );
+
+   
+
+    //copies middleware file into new directory
+    fs.copyFile(
+      path.join(__dirname, '../templates/middleware.ts'),
+      path.join(directory_path, `middleware.ts`),fs.constants.COPYFILE_EXCL,
+      (err) => console.log(err)
+    )
+
+    await fs.copyFile(
+      path.join(__dirname, '../templates/nimble.config.json'),
+      path.join(directory_path,'nimble.config.json'),
+      fs.constants.COPYFILE_EXCL,
+      (err)=> console.log(err))
+
+    console.log('reached this ')
+    const data = fs.readFileSync(path.join(directory_path, 'nimble.config.json'))
+  
+    const parsed_data = JSON.parse(data)
+    
+    const paths = parsed_data.map((el)=> el.experiment_path)
+    console.log(paths)
+    if (!paths.includes(experiment_path)){
+      parsed_data.push({
+      "experiment_path":experiment_path,
+      "experiment_name": Experiment_name,
+      "experiment_id": experiment_uuid,
+      "device_type": Device_Type,
+      "variants": []
+    })
     const newExperiment = await prisma.experiments.create({
       data: {
         Experiment_Name: Experiment_name,
@@ -381,37 +418,11 @@ async function handleAddExperiment(event, experiment) {
       device_type: Device_Type,
     });
     console.log(directory_path);
-
-    //Creates a variants folder in the experiment path
-    fs.mkdir(path.join(new_directory_path, experiment_path, '[variants]'), (err) =>
-      console.log(err)
-    );
-
-    //initialize configuration file
-
-    //copies middleware file into new directory
-    fs.copyFile(
-      path.join(__dirname, '../templates/middleware.ts'),
-      path.join(directory_path, `middleware.ts`),fs.constants.COPYFILE_EXCL,
-      (err) => console.log(err)
-    )
-
-    fs.copyFileSync(
-      path.join(__dirname, '../templates/nimble.config.json'),
-      path.join(directory_path,'nimble.config.json'),
-      fs.constants.COPYFILE_EXCL,
-      (err)=> console.log(err))
-
-
-    const data = fs.readFileSync(path.join(directory_path, 'nimble.config.json'))
-    const parsed_data = JSON.parse(data)
-    parsed_data.push({
-      "experiment_path":experiment_path,
-      "experiment_name": Experiment_name,
-      "experiment_id": experiment_uuid,
-      "device_type": Device_Type,
-      "variants": []
-    })
+    }  else {
+      const msg = "Experiment Already Created"
+      return msg
+    }
+    
 
     fs.writeFileSync(path.join(directory_path, 'nimble.config.json'), JSON.stringify(parsed_data))
 
