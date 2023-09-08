@@ -101,7 +101,8 @@ const TestingConfig: React.FC = () => {
 
   async function main() {
     try {
-      const experimentObjectString = await getExperimentdata();
+      // const experimentObjectString = await getExperimentdata();
+        
       const experimentObject = JSON.parse(experimentObjectString);
 
       // this returns an array. We should display these experiments in a drop down, and let the user configure which is active
