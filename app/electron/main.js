@@ -367,7 +367,7 @@ async function handleAddExperiment(event, experiment) {
     
 
     //Creates a variants folder in the experiment path
-    fs.mkdir(path.join(new_directory_path, experiment_path, '[variants]'), (err) =>
+    fs.mkdir(path.join(new_directory_path, experiment_path, 'variants'), (err) =>
       console.log(err)
     );
 
@@ -469,10 +469,11 @@ async function handleAddVariant(event, variant) {
       variant_name: filePath
     });
 
+    fs.mkdirSync(path.join(new_directory_path,experimentPath,'variants', filePath))
     //Creates variant in variants folder
     fs.copyFile(
       path.join(new_directory_path, experimentPath, `page.js`),
-      path.join(new_directory_path, experimentPath, '[variants]', `${filePath}.js`),
+      path.join(new_directory_path, experimentPath, 'variants', `${filePath}`, 'page.js'),
       (err) => console.log(err)
     );
 
