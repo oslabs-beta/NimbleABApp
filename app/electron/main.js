@@ -388,10 +388,30 @@ async function handleAddExperiment(event, experiment) {
 
     //copies middleware file into new directory
     fs.copyFile(
-      path.join(__dirname, '../templates/staticMiddleware.ts'),
-      path.join(directoryPath, `middleware.ts`),
+      path.join(__dirname, '../templates/middleware.ts'),
+      path.join(directoryPath, `middleware.ts`),fs.constants.COPYFILE_EXCL,
       (err) => console.log(err)
-    );
+    )
+
+    fs.copyFile(
+      path.join(__dirname, '../templates/nimble.config.json'),
+      path.join(directory_path,'nimble.config.json'),
+      fs.constants.COPYFILE_EXCL,
+      (err)=> console.log(err))
+
+
+    const data = fs.readFileSync(path.join(directory_path, 'nimble.config.json'))
+    const parsed_data = JSON.parse(data)
+    parsed_data.push({
+      "experiment_path":experiment_path,
+      "experiment_name": Experiment_name,
+      "experiment_id": experiment_uuid,
+      "device_type": Device_Type,
+      "variants": []
+    })
+
+    fs.writeFileSync(path.join(directory_path, 'nimble.config.json'), JSON.stringify(parsed_data))
+
     console.log('New experiment created');
   } catch (error) {
     console.error(
@@ -406,7 +426,7 @@ async function handleAddExperiment(event, experiment) {
 async function handleAddVariant(event, variant) {
   // destructure the variant object
   console.log(variant);
-  const { filePath, weight, experimentId, directoryPath, experimentPath } =
+  const { filePath, weight, experimentId, directoryPath, experimentPath, variantUuid } =
     variant;
   console.log(filePath);
   console.log(weight);
@@ -423,12 +443,27 @@ async function handleAddVariant(event, variant) {
       },
     });
 
+    //Add variants to supabase
+
     //Creates variant in variants folder
     fs.copyFile(
       path.join(directoryPath, experimentPath, `page.js`),
       path.join(directoryPath, experimentPath, '[variants]', `${filePath}.js`),
       (err) => console.log(err)
     );
+
+    const data = fs.readFileSync(path.join(directory_path, 'nimble.config.json'))
+    const parsed_data = JSON.parse(data);
+    //Adds variant to corresponding experiment
+    for (let i=0;i<parsed_data.length;i++){
+      if (parsed_data[i].experiment_path === experimentPath){
+        parsed_data[i].variants.push({
+          "id": variantUuid,
+          "fileName": filePath,
+          "weight": weight
+        })
+      }
+    }
     console.log('New variant added');
   } catch (error) {
     console.error(
@@ -438,8 +473,6 @@ async function handleAddVariant(event, variant) {
       error
     );
   }
-
-  //Add to the configuration file
 }
 
 async function handleGetVariants(event, experimentId) {
