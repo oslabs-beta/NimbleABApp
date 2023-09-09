@@ -120,18 +120,10 @@ export async function middleware(req: NextRequest) {
   // asynchronously call the increment RPC function in Supabase without waiting for it to complete
   // create a separate static_variants table and static_increment function for the staticConfig (https://supabase.com/dashboard/project/tawrifvzyjqcddwuqjyq/database/functions) per https://www.youtube.com/watch?v=n5j_mrSmpyc
 
-  await supabase.from('static_variants').upsert(
-    {
-      id: chosenVariant.id,
-      fileName: chosenVariant.fileName,
-      weight: chosenVariant.weight,
-      experiment_id: experimentId,
-    },
-    { onConflict: 'id' }
-  );
+
 
   supabase
-    .rpc('static_increment', { row_id: chosenVariant.id })
+    .rpc('increment', { row_id: chosenVariant.id })
     .then(({ data, error }) => {
       if (error) {
         console.error('Error incrementing variant count:', error);
