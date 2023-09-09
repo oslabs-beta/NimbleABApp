@@ -31,7 +31,6 @@ module.exports = merge(base, {
     new HtmlWebpackPlugin({
       filename: 'modal.html',
       template: 'app/src/modal/index.html',
-      base: 'app://rse',
       chunks: ['modal'],
     }),
     // new HtmlWebpackPlugin({
