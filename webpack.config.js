@@ -9,6 +9,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "app/dist"), // Where all the output files get dropped after webpack is done with them
     filename: "[name].js", // The name of the webpack bundle that's generated
+    publicPath: '/'
   },
   resolve: {
     fallback: {

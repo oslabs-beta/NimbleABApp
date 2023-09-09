@@ -144,7 +144,7 @@ async function createTextEditorModal() {
   });
 
   if (isDev) {
-    childWindow.loadURL(selfHost);
+    childWindow.loadURL(selfHost+'/modal.js');
   } else {
     childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`);
   }
