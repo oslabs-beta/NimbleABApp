@@ -7,10 +7,7 @@ import { IElectronAPI } from '../../../../renderer';
 import Instructions from '../../components/instructions';
 
 const Home = (): React.JSX.Element => {
-  async function handleModal() {
-    const data = await window.electronAPI.createModal();
-    console.log(data);
-  }
+
 
   return (
     <>

@@ -2,7 +2,7 @@ export interface IElectronAPI {
   openFile: () => Promise<any>;
   parsePaths: () => Promise<any>;
   getExperiments: () => Promise<any>;
-  createModal: () => Promise<any>;
+  createModal: (filePath: string) => Promise<any>;
   addExperiment: (experiment: object) => Promise<any>;
   addVariant: (name: object) => Promise<any>;
   addRepo: (repo: object) => Promise<any>;

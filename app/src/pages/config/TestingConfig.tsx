@@ -12,8 +12,11 @@ import VariantDisplay from "./VariantDisplay";
 import exp from "constants";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation } from "react-router-dom";
+import { UseSelector } from "react-redux/es/hooks/useSelector";
 import ExperimentDropDown from "./ExperimentDropDown";
 import ConfigureVariant from "./ConfigureVariant";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 // initialize Supabase client
 
 // current defects:
@@ -49,8 +52,24 @@ const TestingConfig: React.FC = () => {
   const [totalWeight, setTotalWeight] = useState<number>(0);
 
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [experimentName, updateExperimentName] = useState<string>("");
-  const [experimentId, updateExperimentId] = useState(0);
+  // const [experimentName, updateExperimentName] = useState<string>("");
+  // const [experimentId, updateExperimentId] = useState(0);
+
+  const repoPath = useSelector(
+    (state: RootState) => state.experiments.repoPath
+  );
+
+  const location = useLocation();
+
+  // Access the state data you passed in the Navigate component
+  const {
+    experimentName,
+    experimentPath,
+    repoId,
+    experimentId,
+    directoryPath,
+    // Other state data you passed
+  } = location.state;
 
   // build this throughout and then submit
   const [experimentObj, updateExperimentObj] = useState({});
@@ -63,7 +82,7 @@ const TestingConfig: React.FC = () => {
   const getVariants = async (id: number | string) => {
     try {
       // this is a typescript error that doesn't prevent us from running. We're going to leave it this way and debut post demo
-      const variantsString = await window.electronAPI.getVariants();
+      const variantsString = await window.electronAPI.getVariants(experimentId);
       const variants = JSON.parse(variantsString);
 
       console.log("Variants retrieved: ", variants);
@@ -89,28 +108,21 @@ const TestingConfig: React.FC = () => {
     }
   };
 
-  // if exists display at top
-  const handleExperienceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateExperimentName(e.target.value);
-  };
-
   // component functionality: get experiment if exists on user's local
   async function getExperimentdata() {
-    return await window.electronAPI.getExperiments();
+    const experimentData = await window.electronAPI.getExperiments();
+    // if experiment data is falsy, inform the user
+    if (!experimentData) {
+      alert("No experiment was found");
+    } else return experimentData;
   }
 
   async function main() {
     try {
-      // const experimentObjectString = await getExperimentdata();
-        
+      console.log(repoPath + " if there's a file path, redux is working");
+      const experimentObjectString = await getExperimentdata();
+
       const experimentObject = JSON.parse(experimentObjectString);
-
-      // this returns an array. We should display these experiments in a drop down, and let the user configure which is active
-
-      experimentObject[0].experiment_ID
-        ? updateExperimentId(experimentObject[0].experiment_ID)
-        : updateExperimentId(1); // this is for demo purposes
-      updateExperimentName(experimentObject[0].Experiment_Name);
       getVariants(experimentId);
     } catch (error) {
       console.error("An error occurred:", error);
@@ -122,6 +134,11 @@ const TestingConfig: React.FC = () => {
   useEffect(() => {
     main();
 
+    console.log(experimentName);
+    console.log(experimentPath);
+    console.log(repoId);
+    console.log(experimentId);
+    console.log(directoryPath);
     // Listen for changes in the rows state
     if (rows.length > 0) {
       // Assuming VariantRow is a component
@@ -140,7 +157,7 @@ const TestingConfig: React.FC = () => {
     <div className="h-screen w-full bg-primary flex font-mono">
       <div className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono">
         {experimentName ? (
-          <p>
+          <p className="text-white">
             Configuration for experiment <br></br>{" "}
             <strong>{experimentName}</strong>
           </p>
@@ -148,12 +165,16 @@ const TestingConfig: React.FC = () => {
           "No experiment active; return to home and create new"
         )}
         <ExperimentDropDown></ExperimentDropDown>
-        <CreateVariant experimentID={experimentId}></CreateVariant>
+        <CreateVariant
+          experimentID={experimentId}
+          directoryPath={directoryPath}
+          experimentPath={experimentPath}
+        ></CreateVariant>
         <ConfigureVariant></ConfigureVariant>
       </div>
       <div
         id="variantAnchor"
-        className="flex w-1/2 justify-center items-center"
+        className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono"
       >
         <h2>Variants</h2>
         <table>
