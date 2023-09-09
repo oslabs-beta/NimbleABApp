@@ -367,9 +367,14 @@ async function handleAddExperiment(event, experiment) {
   if (path.basename(directory_path) === "src") new_directory_path += "/app";
   try {
     //Creates a variants folder in the experiment path
+<<<<<<< HEAD
     fs.mkdir(
       path.join(new_directory_path, experiment_path, "[variants]"),
       (err) => console.log(err)
+=======
+    fs.mkdir(path.join(new_directory_path, experiment_path, 'variants'), (err) =>
+      console.log(err)
+>>>>>>> dev
     );
 
     //copies middleware file into new directory
@@ -380,9 +385,15 @@ async function handleAddExperiment(event, experiment) {
       (err) => console.log(err)
     );
 
+<<<<<<< HEAD
     await fs.copyFile(
       path.join(__dirname, "../templates/nimble.config.json"),
       path.join(directory_path, "nimble.config.json"),
+=======
+     fs.copyFile(
+      path.join(__dirname, '../templates/nimble.config.json'),
+      path.join(directory_path,'nimble.config.json'),
+>>>>>>> dev
       fs.constants.COPYFILE_EXCL,
       (err) => console.log(err)
     );
@@ -445,6 +456,7 @@ async function handleAddExperiment(event, experiment) {
 async function handleAddVariant(event, variant) {
   // destructure the variant object
   console.log(variant);
+<<<<<<< HEAD
   const {
     filePath,
     weight,
@@ -460,6 +472,17 @@ async function handleAddVariant(event, variant) {
   console.log(filePath);
   console.log(weight);
   console.log(experimentId);
+=======
+  const { filePath, weight, experimentId, directoryPath, experimentPath, variantUuid, experiment_uuid } =
+    variant;
+   let new_directory_path = directoryPath
+   console.log("basename", path.basename(directoryPath))
+   if (path.basename(directoryPath) === 'src') new_directory_path+="/app"
+ 
+  // console.log(filePath);
+  // console.log(weight);
+  // console.log(experimentId);
+>>>>>>> dev
   // add to database
   try {
     const newVariant = await prisma.Variants.create({
@@ -471,24 +494,29 @@ async function handleAddVariant(event, variant) {
         // this is on the schema but may not be needed. For now a blank array
       },
     });
-
+    console.log(variantUuid)
     //Add variants to supabase
     axios.post("https://nimblebackend-te9u.onrender.com/createVariant", {
       variant_id: variantUuid,
-      experimentId: experimentId,
+      experimentId: experiment_uuid,
       variant_weight: weight,
       variant_name: filePath,
     });
 
+    fs.mkdirSync(path.join(new_directory_path,experimentPath,'variants', filePath))
     //Creates variant in variants folder
     fs.copyFile(
       path.join(new_directory_path, experimentPath, `page.js`),
+<<<<<<< HEAD
       path.join(
         new_directory_path,
         experimentPath,
         "[variants]",
         `${filePath}.js`
       ),
+=======
+      path.join(new_directory_path, experimentPath, 'variants', `${filePath}`, 'page.js'),
+>>>>>>> dev
       (err) => console.log(err)
     );
 
@@ -529,7 +557,7 @@ async function handleGetVariants(event, experimentId) {
         Experiment_Id: experimentId,
       },
     });
-    console.log(variants);
+    // console.log(variants);
     return JSON.stringify(variants);
   } catch (error) {
     console.error(
@@ -561,7 +589,7 @@ async function handleGetExperiments(event, experimentId) {
   }
 }
 async function handleAddRepo(event, repo) {
-  console.log(repo);
+  // console.log(repo);
   try {
     const { FilePath } = repo;
     // const data = await prisma.Repos.upsert({

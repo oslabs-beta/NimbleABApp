@@ -150,7 +150,7 @@ export async function middleware(req: NextRequest) {
 
   url.pathname = url.pathname.replace(
     currentPath,
-    `${currentPath}/${chosenVariant.fileName}`
+    `${currentPath}/variants/${chosenVariant.fileName}`
   );
 
   const res = NextResponse.rewrite(url);
