@@ -123,13 +123,6 @@ const TestingConfig: React.FC = () => {
       const experimentObjectString = await getExperimentdata();
 
       const experimentObject = JSON.parse(experimentObjectString);
-
-      // this returns an array. We should display these experiments in a drop down, and let the user configure which is active
-
-      // experimentObject[0].experiment_ID
-      //   ? updateExperimentId(experimentObject[0].experiment_ID)
-      //   : updateExperimentId(1); // this is for demo purposes
-      // updateExperimentName(experimentObject[0].Experiment_Name);
       getVariants(experimentId);
     } catch (error) {
       console.error("An error occurred:", error);
@@ -181,7 +174,7 @@ const TestingConfig: React.FC = () => {
       </div>
       <div
         id="variantAnchor"
-        className="flex w-1/2 justify-center items-center"
+        className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono"
       >
         <h2>Variants</h2>
         <table>

@@ -42,27 +42,6 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
     } catch (error) {
       console.log("error in the Submit Variant component ", error);
     }
-
-    // submit to the supabase db
-    try {
-      console.log("the experiment id pulled off state: " + experimentId);
-      const response = await axios.post(
-        "https://nimblebackend-te9u.onrender.com/createVariants",
-        {
-          variant_id: variantUuid,
-          variant_name: props.filePath,
-          variant_weight: props.weight,
-          experimentId: experimentId,
-        }
-      );
-      console.log(response.status + " is the reponse status");
-      console.log("successfully posted, check database");
-    } catch (error) {
-      console.log(
-        "error in the axios request in submit Variant component ",
-        error
-      );
-    }
     return;
   };
 
