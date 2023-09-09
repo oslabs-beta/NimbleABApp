@@ -31,6 +31,7 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
         filePath: props.filePath,
         weight: props.weight,
         experimentId: props.experiment_ID,
+        experiment_uuid: experimentId,
         experimentPath,
         directoryPath,
         variantUuid

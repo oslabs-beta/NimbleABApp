@@ -380,7 +380,7 @@ async function handleAddExperiment(event, experiment) {
       (err) => console.log(err)
     )
 
-    await fs.copyFile(
+     fs.copyFile(
       path.join(__dirname, '../templates/nimble.config.json'),
       path.join(directory_path,'nimble.config.json'),
       fs.constants.COPYFILE_EXCL,
@@ -440,15 +440,15 @@ async function handleAddExperiment(event, experiment) {
 async function handleAddVariant(event, variant) {
   // destructure the variant object
   console.log(variant);
-  const { filePath, weight, experimentId, directoryPath, experimentPath, variantUuid } =
+  const { filePath, weight, experimentId, directoryPath, experimentPath, variantUuid, experiment_uuid } =
     variant;
    let new_directory_path = directoryPath
    console.log("basename", path.basename(directoryPath))
    if (path.basename(directoryPath) === 'src') new_directory_path+="/app"
  
-  console.log(filePath);
-  console.log(weight);
-  console.log(experimentId);
+  // console.log(filePath);
+  // console.log(weight);
+  // console.log(experimentId);
   // add to database
   try {
     const newVariant = await prisma.Variants.create({
@@ -460,11 +460,11 @@ async function handleAddVariant(event, variant) {
         // this is on the schema but may not be needed. For now a blank array
       },
     });
-
+    console.log(variantUuid)
     //Add variants to supabase
     axios.post('https://nimblebackend-te9u.onrender.com/createVariant', {
       variant_id: variantUuid,
-      experimentId: experimentId,
+      experimentId: experiment_uuid,
       variant_weight: weight,
       variant_name: filePath
     });
@@ -509,7 +509,7 @@ async function handleGetVariants(event, experimentId) {
         Experiment_Id: experimentId,
       },
     });
-    console.log(variants);
+    // console.log(variants);
     return JSON.stringify(variants);
   } catch (error) {
     console.error(
@@ -541,7 +541,7 @@ async function handleGetExperiments(event, experimentId) {
   }
 }
 async function handleAddRepo(event, repo) {
-  console.log(repo);
+  // console.log(repo);
   try {
     const { FilePath } = repo;
     // const data = await prisma.Repos.upsert({
