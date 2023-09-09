@@ -35,11 +35,7 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
         experiment_uuid: experimentId,
         experimentPath,
         directoryPath,
-<<<<<<< HEAD
         variantUuid,
-=======
-        variantUuid
->>>>>>> dev
       };
       await window.electronAPI.addVariant(variantObj);
       console.log("variant added");
