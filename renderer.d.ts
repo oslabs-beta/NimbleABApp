@@ -8,6 +8,9 @@ export interface IElectronAPI {
   addRepo: (repo: object) => Promise<any>;
   getVariants: (expId: number | string) => Promise<any>;
   getRepo: (repoId: any) => Promise<any>;
+  loadFile: (callback:any)=>Promise<any>
+  saveFile: (callback:any)=>Promise<any>
+  closeFile: (value:any) => Promise<any>
 }
 
 declare global {

@@ -6,6 +6,7 @@ const {
   ipcMain,
   dialog,
   Menu,
+  MenuItem,
 } = require("electron");
 const Store = require("electron-store");
 const {
@@ -122,7 +123,7 @@ async function createWindow() {
 }
 
 //Function to create text editor modal
-async function createTextEditorModal(filePath = null) {
+async function createTextEditorModal(filePath) {
   // the filepath argument is to be used to place the user into whatever path contains their variants that way they don't need to
   // traverse the whole file tree to get there
   if (!isDev) {
@@ -133,7 +134,7 @@ async function createTextEditorModal(filePath = null) {
     height: 800,
     title: "Application is starting up...",
     parent: win,
-    modal: true,
+    modal: false,
     webPreferences: {
       devTools: isDev,
       nodeIntegration: false,
@@ -153,6 +154,12 @@ async function createTextEditorModal(filePath = null) {
 
   childWindow.webContents.on("did-finish-load", () => {
     childWindow.setTitle(`Nimble Labs`);
+
+  //make sure not modifying files in this project directory
+  if (filePath.includes(__dirname)){
+    const data = fs.readFileSync(filePath);
+    childWindow.webContents.send('file-path', {data, filePath})
+  }
   });
 
   //Loads Redux DevTools when in DevMode
@@ -194,6 +201,22 @@ async function createTextEditorModal(filePath = null) {
     });
 
   //Add Custom Menu Builder for the Modal
+  //Add save button to menu
+  const menu = new Menu()
+  menu.append(new MenuItem(
+    {
+      label: 'File', 
+      submenu: [
+        {
+          click: () => childWindow.webContents.send('save-file'),
+          label: "Save",
+          accelerator: process.platform === 'darwin' ? 'Cmd+s' : 'Ctrl+s'
+        }
+      ]
+    }
+  ))
+  console.log(menu)
+  childWindow.setMenu(menu)
 }
 
 // Needs to be called before app is ready;
@@ -586,9 +609,12 @@ async function handleAddRepo(event, repo) {
 }
 
 //Creates Text Editor Modal
-function handleCreateTextEditor(filePath = null) {
-  createTextEditorModal(filePath);
-  // console.log('hi');
+async function handleCreateTextEditor(event, filePath) {
+  await createTextEditorModal(filePath);
+
+  // const data = fs.readFileSync(filePath)
+
+  console.log('hi');
 }
 
 //Gets the Repo from Local DB
@@ -603,11 +629,24 @@ async function handleGetRepo(event, repoId) {
     console.log(err);
   }
 }
+
+async function handleCloseModal (event, value) {
+  try {
+    const {data, filePath} = value;
+    console.log(data)
+    fs.writeFile(filePath, data, (err)=> console.log(err))
+    childWindow.close();
+  } catch(err){
+    console.log(err)
+  }
+  
+}
 //Event Listeners for Client Side Actions
 ipcMain.handle("dialog:openFile", handleFileOpen);
 ipcMain.handle("directory:parsePaths", handleDirectoryPaths);
 ipcMain.handle("experiment:getExperiments", handleGetExperiments);
 ipcMain.handle("modal:createModal", handleCreateTextEditor);
+ipcMain.handle("modal:closeModal", handleCloseModal)
 // Database API
 ipcMain.handle("database:addExperiment", handleAddExperiment);
 ipcMain.handle("database:addVariant", handleAddVariant);
@@ -615,3 +654,18 @@ ipcMain.handle("database:getVariants", handleGetVariants);
 ipcMain.handle("database:addRepo", handleAddRepo);
 ipcMain.handle("database:getRepo", handleGetRepo);
 //File System API
+ipcMain.on('save-file', async (_event, value)=> {
+  
+  try {
+    const {data, filePath} = value;
+    if (!filePath.includes(__dirname)) return 
+
+    console.log(data)
+    fs.writeFile(filePath, data, (err)=> {
+      if (err) console.log(err)
+    })
+  } catch(err){
+    console.log(err)
+  }
+})
+

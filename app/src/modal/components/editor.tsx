@@ -1,26 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 
 const Editors = (): React.JSX.Element => {
-  const [fileName, setFileName] = useState('../index.js');
+  const [filePath, setFilePath] = useState('');
+  const [fileText, setFileText] = useState('')
+  const textRef = useRef('')
 
-  //Grab file from state in redux
-  //send an event to IPC to grab the file text
-  //set state of fileText to text
-  //add value to editor
-  //create an onChange functions that updates text state to new updated text
-  //Create Save button and save menu item to save the modal;
+  const handleEditorChange = (editor:any, monaco:any) => {
+    textRef.current = editor 
+  }
+
+  const handleClose = () => {
+    window.electronAPI.closeFile({data: textRef.current, filePath});
+  }
+
+
+  //Receives file to load from Main Proccess
+  window.electronAPI.loadFile((_event:any, value:any)=>{
+    const {data, filePath} = value;
+    setFilePath(filePath);
+    setFileText(new TextDecoder().decode(data));
+    textRef.current = new TextDecoder().decode(data);
+  })
+
+  //Talks with main proccess to Save updated Text
+  window.electronAPI.saveFile((_event:any, value:any)=>{
+    console.log("Saving")
+    _event.sender.send('save-file',{data: textRef.current, filePath})
+    setFileText(fileText)
+  })
 
   return (
-    <div className="h-full w-screen bg-primary">
-      <h1 className="text-white">Loaded the modal</h1>
+
+    <div className="h-screen w-screen bg-primary flex flex-col">
+      <h1 className="text-white text-lg font-bold self-center">Variant Editor</h1>
       <Editor
         language="javascript"
-        height="100vh"
-        width="90vh"
+        height="85vh"
+        width="100"
         theme="vs-dark"
+        value={fileText}
+        onChange={handleEditorChange}
+        options={{minimap:{enabled:false}}}
       />
+      <button onClick={handleClose} className='btn btn-success grow'>Close and Save</button>
     </div>
+    
+
   );
 };
 
