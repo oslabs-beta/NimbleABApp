@@ -22,6 +22,7 @@ const CreateVariant: React.FC<VariantProps> = (props) => {
   const handleClick = async () => {
     // open the modal
     console.log("opened the modal");
+    // pass down directory, experiment path, filepath
     await window.electronAPI.createModal(props.experimentPath);
   };
 

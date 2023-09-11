@@ -36,7 +36,7 @@ interface RowProps {
   index: number;
 }
 
-interface Variant {
+export interface Variant {
   filePath: string;
   weight: number;
   deviceType: string;
@@ -74,17 +74,16 @@ const TestingConfig: React.FC = () => {
   // build this throughout and then submit
   const [experimentObj, updateExperimentObj] = useState({});
 
-  // this function adds a new row
-  const handleAddRow = () => {
-    setRows([...rows, VariantRow]);
-  };
-
   const getVariants = async (id: number | string) => {
     try {
       // this is a typescript error that doesn't prevent us from running. We're going to leave it this way and debut post demo
+      console.log("reached getVariants");
+      console.log(experimentId);
       const variantsString = await window.electronAPI.getVariants(experimentId);
-      const variants = JSON.parse(variantsString);
+      const rawVariants = JSON.parse(variantsString);
+      const variants = rawVariants[0].Variants;
 
+      console.log("reached getVariants func after api call");
       console.log("Variants retrieved: ", variants);
 
       const newVariants = variants.map((variant: any) => ({
@@ -93,6 +92,9 @@ const TestingConfig: React.FC = () => {
         deviceType: variant.deviceType,
       }));
 
+      console.log("Done with the newVariants declaration");
+      console.log(newVariants.length);
+      console.log(newVariants);
       setVariants(newVariants); // Update the variants state
     } catch (error) {
       console.error("An error occurred:", error);
@@ -114,7 +116,11 @@ const TestingConfig: React.FC = () => {
     // if experiment data is falsy, inform the user
     if (!experimentData) {
       alert("No experiment was found");
-    } else return experimentData;
+    } else {
+      console.log("Returned the experiment data");
+
+      return experimentData;
+    }
   }
 
   async function main() {
@@ -129,29 +135,13 @@ const TestingConfig: React.FC = () => {
     }
   }
 
-  //use effect to listen out for updates to variant rows
-
   useEffect(() => {
     main();
-
-    console.log(experimentName);
-    console.log(experimentPath);
-    console.log(repoId);
-    console.log(experimentId);
-    console.log(directoryPath);
-    // Listen for changes in the rows state
-    if (rows.length > 0) {
-      // Assuming VariantRow is a component
-      const newRow = <VariantRow />;
-      const newRowContainer = document.createElement("div");
-      ReactDOM.render(newRow, newRowContainer);
-
-      const newRowAnchor = document.getElementById("newRowAnchor");
-      if (newRowAnchor) {
-        newRowAnchor.appendChild(newRowContainer);
-      }
-    }
+    console.log(variants);
   }, []);
+
+  // getVariants(experimentId);
+  //use effect to listen out for updates to variant rows
 
   return (
     <div className="h-screen w-full bg-primary flex font-mono">
@@ -172,45 +162,7 @@ const TestingConfig: React.FC = () => {
         ></CreateVariant>
         <ConfigureVariant></ConfigureVariant>
       </div>
-      <div
-        id="variantAnchor"
-        className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono"
-      >
-        <h2 className="text-white">Variants</h2>
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-              >
-                File Path
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-              >
-                Weight
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-              >
-                Device Type
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {variants.map((variant, index) => (
-              <tr key={index}>
-                <td>{variant.filePath}</td>
-                <td>{variant.weight}</td>
-                <td>{variant.deviceType}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <VariantDisplay variant={variants}></VariantDisplay>
     </div>
   );
 };
