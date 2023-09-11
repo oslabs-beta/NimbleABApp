@@ -617,8 +617,10 @@ async function handleCreateTextEditor(event, value) {
   console.log(Object.keys(value) + " are keys passed down");
 
   const { filePath, experimentPath, directoryPath } = value;
+  let newDirectoryPath = directoryPath
+  if (path.basename(directoryPath) === 'src') newDirectoryPath += '/app'
   await createTextEditorModal(
-    directoryPath + experimentPath + "/variants" + filePath + "/page.js"
+    newDirectoryPath + experimentPath + "/variants" + '/'+ filePath + "/page.js"
   );
 
   // const data = fs.readFileSync(filePath)
