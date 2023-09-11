@@ -156,7 +156,7 @@ async function createTextEditorModal(filePath) {
     childWindow.setTitle(`Nimble Labs`);
 
   //make sure not modifying files in this project directory
-  if (filePath.includes(__dirname)){
+  if (!filePath.includes(__dirname)){
     const data = fs.readFileSync(filePath);
     childWindow.webContents.send('file-path', {data, filePath})
   }
@@ -658,7 +658,7 @@ ipcMain.on('save-file', async (_event, value)=> {
   
   try {
     const {data, filePath} = value;
-    if (!filePath.includes(__dirname)) return 
+    if (filePath.includes(__dirname)) return 
 
     console.log(data)
     fs.writeFile(filePath, data, (err)=> {
