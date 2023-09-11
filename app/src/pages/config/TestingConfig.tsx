@@ -1,13 +1,33 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import VariantRow from "./VariantRow";
 import CreateVariant from "./CreateVariant";
 import { PrismaClient } from "@prisma/client";
 import { IElectronAPI } from "../../../../renderer";
-import { useContext } from "react";
-
+import { createContext, useEffect } from "react";
+import NameExperiment from "./NameExperiment";
+import VariantDisplay from "./VariantDisplay";
+import exp from "constants";
+import { v4 as uuidv4 } from "uuid";
+import { useLocation } from "react-router-dom";
+import { UseSelector } from "react-redux/es/hooks/useSelector";
+import ExperimentDropDown from "./ExperimentDropDown";
+import ConfigureVariant from "./ConfigureVariant";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 // initialize Supabase client
+
+// current defects:
+// 1. Doesn't build an experiment object
+// 2. Doesn't post to the database
+// 3. Existing variants aren't displayed correctly
+// 4. Layout of new creation fields
+// 5. No modal on click
+// 6. No back button to homepage
+// 7. Change database IDs to UUIDs
+
 const supabaseUrl = "https://tawrifvzyjqcddwuqjyq.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhd3JpZnZ6eWpxY2Rkd3VxanlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI2NTc2MjcsImV4cCI6MjAwODIzMzYyN30.-VekGbd6Iwey0Q32SQA0RxowZtqSlDptBhlt2r-GZBw";
@@ -16,29 +36,83 @@ interface RowProps {
   index: number;
 }
 
+export interface Variant {
+  filePath: string;
+  weight: number;
+  deviceType: string;
+}
+
+interface Experiment {
+  name: string;
+  variants: [];
+}
+
+interface ExperimentContextType {
+  experimentId: any;
+  experimentPath: string;
+  repoId: string | number;
+  directoryPath: string;
+  experimentName: string;
+}
+
+export const experimentContext = createContext<ExperimentContextType | null>(
+  null
+);
+
 const TestingConfig: React.FC = () => {
   const [rows, setRows] = useState<React.FC<RowProps>[]>([]);
   const [totalWeight, setTotalWeight] = useState<number>(0);
 
-  const [experimentName, updateExperimentName] = useState<string>("");
-  const [experimentId, updateExperimentId] = useState(0);
-  const handleAddRow = () => {
-    setRows([...rows, VariantRow]);
-  };
+  const [variants, setVariants] = useState<Variant[]>([]);
+  // const [experimentName, updateExperimentName] = useState<string>("");
+  // const [experimentId, updateExperimentId] = useState(0);
 
-  // const handleCalculateTotal = () => {
-  //   const calculatedTotal = rows.reduce((acc, row) => acc + row.weight, 0);
-  //   setTotalWeight(calculatedTotal);
-  // };
+  const repoPath = useSelector(
+    (state: RootState) => state.experiments.repoPath
+  );
 
-  const getVariants = async () => {
-    // destructure the data object
-    const variantsString = await window.electronAPI.getVariants(1);
-    // reassign to more intuitive name
-    const variants = JSON.parse(variantsString);
+  // useContext to pass the directory info to the child components
 
-    console.log("variants retrieved : ", variants);
-    // console.log(error);
+  const location = useLocation();
+
+  // Access the state data you passed in the Navigate component
+  const {
+    experimentName,
+    experimentPath,
+    repoId,
+    experimentId,
+    directoryPath,
+    // Other state data you passed
+  } = location.state;
+
+  // build this throughout and then submit
+  const [experimentObj, updateExperimentObj] = useState({});
+
+  const getVariants = async (id: number | string) => {
+    try {
+      // this is a typescript error that doesn't prevent us from running. We're going to leave it this way and debut post demo
+      console.log("reached getVariants");
+      console.log(experimentId);
+      const variantsString = await window.electronAPI.getVariants(experimentId);
+      const rawVariants = JSON.parse(variantsString);
+      const variants = rawVariants[0].Variants;
+
+      console.log("reached getVariants func after api call");
+      console.log("Variants retrieved: ", variants);
+
+      const newVariants = variants.map((variant: any) => ({
+        filePath: variant.filePath,
+        weight: variant.weight,
+        deviceType: variant.deviceType,
+      }));
+
+      console.log("Done with the newVariants declaration");
+      console.log(newVariants.length);
+      console.log(newVariants);
+      setVariants(newVariants); // Update the variants state
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
   };
 
   const handleSubmit = () => {
@@ -50,83 +124,70 @@ const TestingConfig: React.FC = () => {
     }
   };
 
-  /// functionality
-
-  // if exists display at top
-  const handleExperienceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateExperimentName(e.target.value);
-  };
-
-  const handleExpSubmit = async () => {
-    // schema definition as of right now: const {experimentName, deviceType} = experiment
-    const experiment = {
-      experimentName: experimentName,
-      // CHANGE THIS LATER
-      deviceType: "desktop",
-    };
-    if (experimentName) await window.electronAPI.addExperiment(experiment);
-    // await window.electronAPI.addExperiment("new Experiment");
-    else alert("experiment must have a name");
-  };
-
   // component functionality: get experiment if exists on user's local
   async function getExperimentdata() {
-    return await window.electronAPI.getExperiments();
+    const experimentData = await window.electronAPI.getExperiments();
+    // if experiment data is falsy, inform the user
+    if (!experimentData) {
+      alert("No experiment was found");
+    } else {
+      console.log("Returned the experiment data");
+
+      return experimentData;
+    }
   }
 
   async function main() {
     try {
-      const experimentObject = await getExperimentdata();
-      console.log("Promise resolved successfully");
-      console.log(experimentObject.Keys());
+      console.log(repoPath + " if there's a file path, redux is working");
+      const experimentObjectString = await getExperimentdata();
+
+      const experimentObject = JSON.parse(experimentObjectString);
+      getVariants(experimentId);
     } catch (error) {
       console.error("An error occurred:", error);
     }
   }
 
-  main();
+  useEffect(() => {
+    main();
+    console.log(variants);
+  }, []);
+
+  // getVariants(experimentId);
+  //use effect to listen out for updates to variant rows
 
   return (
-    <div className="h-screen w-full bg-primary flex p-10 gap-2 font-mono">
-      <form>
-        <label htmlFor="name">Name your experiment</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={experimentName}
-          onChange={handleExperienceInput}
-        />
-        <button onClick={handleExpSubmit}>Submit experiment name</button>
-      </form>
-      <p>Name: {FormData.name}</p>
-      {rows.map((VariantRow, index) => (
-        <VariantRow index={index}></VariantRow>
-      ))}
-      <CreateVariant experimentID={experimentId}></CreateVariant>
+    <div className="h-screen w-full bg-primary flex font-mono">
+      <experimentContext.Provider
+        value={{
+          experimentId,
+          experimentPath,
+          repoId,
+          directoryPath,
+          experimentName,
+        }}
+      >
+        <div className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono">
+          {experimentName ? (
+            <p className="text-white">
+              Configuration for experiment <br></br>{" "}
+              <strong>{experimentName}</strong>
+            </p>
+          ) : (
+            "No experiment active; return to home and create new"
+          )}
 
-      <div className="flex flex-col flex-auto w-36">
-        <button
-          className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-          onClick={handleAddRow}
-        >
-          Add Variant
-        </button>
-
-        <button
-          className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-          onClick={handleSubmit}
-        >
-          Submit Experiment
-        </button>
-
-        <button
-          className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-          onClick={getVariants}
-        >
-          Check the variants (console.log)
-        </button>
-      </div>
+          <ExperimentDropDown></ExperimentDropDown>
+          {/* <CreateVariant
+            experimentID={experimentId}
+            directoryPath={directoryPath}
+            experimentPath={experimentPath}
+          ></CreateVariant> */}
+          <ConfigureVariant></ConfigureVariant>
+        </div>
+        <VariantDisplay variant={variants}></VariantDisplay>
+      </experimentContext.Provider>
     </div>
   );
 };

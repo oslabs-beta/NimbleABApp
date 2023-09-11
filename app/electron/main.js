@@ -6,6 +6,7 @@ const {
   ipcMain,
   dialog,
   Menu,
+  MenuItem,
 } = require("electron");
 const Store = require("electron-store");
 const {
@@ -13,7 +14,7 @@ const {
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
 } = require("electron-devtools-installer");
-
+const axios = require("axios");
 const prisma = require("./prisma.ts");
 const reflect = require("reflect-metadata");
 
@@ -22,7 +23,7 @@ const MenuBuilder = require("./menu");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
-const { parseConfigFileTextToJson } = require("typescript");
+const { data } = require("autoprefixer");
 const isDev = process.env.NODE_ENV === "development";
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
@@ -47,8 +48,11 @@ async function createWindow() {
   }
 
   win = new BrowserWindow({
-    width: 1000,
+    width: 1100,
     height: 800,
+    minHeight: 900,
+    minWidth: 600,
+    icon: path.join(__dirname, "../../images/icon.png"),
     title: "Application is starting up...",
     webPreferences: {
       devTools: true,
@@ -64,6 +68,7 @@ async function createWindow() {
   //set initial background color
   // win.setBackgroundColor('');
 
+  //Loads local server in DevMode. Modal Only Loads in Dev mode if chunks are changed. Production is Ready
   if (isDev) {
     win.loadURL(selfHost);
   } else {
@@ -74,6 +79,7 @@ async function createWindow() {
     win.setTitle(`Nimble Labs`);
   });
 
+  //Loads DevTools in DevMode
   if (isDev) {
     win.webContents.once("dom-ready", async () => {
       await installExtension([REDUX_DEVTOOLS])
@@ -117,7 +123,9 @@ async function createWindow() {
 }
 
 //Function to create text editor modal
-async function createTextEditorModal() {
+async function createTextEditorModal(filePath) {
+  // the filepath argument is to be used to place the user into whatever path contains their variants that way they don't need to
+  // traverse the whole file tree to get there
   if (!isDev) {
     protocol.registerBufferProtocol(Protocol.scheme, Protocol.requestHandler);
   }
@@ -126,7 +134,7 @@ async function createTextEditorModal() {
     height: 800,
     title: "Application is starting up...",
     parent: win,
-    modal: true,
+    modal: false,
     webPreferences: {
       devTools: isDev,
       nodeIntegration: false,
@@ -135,20 +143,26 @@ async function createTextEditorModal() {
       contextIsolation: true,
       enableRemoteModule: false,
       preload: path.join(__dirname, "preload.ts"),
-      // disableBlinkFeatures: "Auxclick",
     },
   });
 
   if (isDev) {
-    childWindow.loadURL(selfHost);
+    childWindow.loadURL(selfHost + "/modal.html");
   } else {
-    childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`); //Might not work for production needs to fix
+    childWindow.loadURL(`${Protocol.scheme}://rse/modal.html`);
   }
 
   childWindow.webContents.on("did-finish-load", () => {
     childWindow.setTitle(`Nimble Labs`);
+
+    //make sure not modifying files in this project directory
+    if (!filePath.includes(__dirname)) {
+      const data = fs.readFileSync(filePath);
+      childWindow.webContents.send("file-path", { data, filePath });
+    }
   });
 
+  //Loads Redux DevTools when in DevMode
   if (isDev) {
     childWindow.webContents.once("dom-ready", async () => {
       await installExtension([REDUX_DEVTOOLS])
@@ -185,6 +199,24 @@ async function createTextEditorModal() {
         permCallback(false); // Deny
       }
     });
+
+  //Add Custom Menu Builder for the Modal
+  //Add save button to menu
+  const menu = new Menu();
+  menu.append(
+    new MenuItem({
+      label: "File",
+      submenu: [
+        {
+          click: () => childWindow.webContents.send("save-file"),
+          label: "Save",
+          accelerator: process.platform === "darwin" ? "Cmd+s" : "Ctrl+s",
+        },
+      ],
+    })
+  );
+  console.log(menu);
+  childWindow.setMenu(menu);
 }
 
 // Needs to be called before app is ready;
@@ -297,7 +329,7 @@ async function handleFileOpen() {
   });
   if (!canceled) {
     store.set("directoryPath", filePaths[0]);
-    return path.basename(filePaths[0]);
+    return { basename: path.basename(filePaths[0]), fullPath: filePaths[0] };
   }
 }
 
@@ -345,14 +377,83 @@ function handleGetExperiments() {
 // takes an experiment object
 async function handleAddExperiment(event, experiment) {
   console.log(experiment);
-  const { experimentName, deviceType } = experiment;
+  const {
+    Experiment_name,
+    Device_Type,
+    Repo_id,
+    experiment_path,
+    experiment_uuid,
+    directory_path,
+  } = experiment;
+  let new_directory_path = directory_path;
+  console.log("basename", path.basename(directory_path));
+  if (path.basename(directory_path) === "src") new_directory_path += "/app";
   try {
-    const newExperiment = await prisma.experiments.create({
-      data: {
-        Experiment_Name: experiment,
-        Device_Type: "Desktop",
-      },
-    });
+    //Creates a variants folder in the experiment path
+    fs.mkdir(
+      path.join(new_directory_path, experiment_path, "variants"),
+      (err) => console.log(err)
+    );
+
+    //copies middleware file into new directory
+    fs.copyFile(
+      path.join(__dirname, "../templates/middleware.ts"),
+      path.join(directory_path, `middleware.ts`),
+      fs.constants.COPYFILE_EXCL,
+      (err) => console.log(err)
+    );
+
+    fs.copyFile(
+      path.join(__dirname, "../templates/nimble.config.json"),
+      path.join(directory_path, "nimble.config.json"),
+      fs.constants.COPYFILE_EXCL,
+      (err) => console.log(err)
+    );
+
+    console.log("reached this ");
+    const data = fs.readFileSync(
+      path.join(directory_path, "nimble.config.json")
+    );
+
+    const parsed_data = JSON.parse(data);
+
+    const paths = parsed_data.map((el) => el.experiment_path);
+    console.log(paths);
+    if (!paths.includes(experiment_path)) {
+      parsed_data.push({
+        experiment_path: experiment_path,
+        experiment_name: Experiment_name,
+        experiment_id: experiment_uuid,
+        device_type: Device_Type,
+        variants: [],
+      });
+      const newExperiment = await prisma.experiments.create({
+        data: {
+          Experiment_Name: Experiment_name,
+          Device_Type,
+          Repo_id,
+          experiment_path,
+          experiment_uuid,
+        },
+      });
+      //Adds Experiment to database on supabase
+      axios.post("https://nimblebackend-te9u.onrender.com/createExperiment", {
+        experiment_name: Experiment_name,
+        experimentId: experiment_uuid,
+        experiment_path,
+        device_type: Device_Type,
+      });
+      console.log(directory_path);
+    } else {
+      const msg = "Experiment Already Created";
+      return msg;
+    }
+
+    fs.writeFileSync(
+      path.join(directory_path, "nimble.config.json"),
+      JSON.stringify(parsed_data)
+    );
+
     console.log("New experiment created");
   } catch (error) {
     console.error(
@@ -364,33 +465,25 @@ async function handleAddExperiment(event, experiment) {
   }
 }
 
-// async function handleAddRepo(event, repo) {
-//   console.log(repo);
-//   try {
-//     const newRepo = await prisma.repo.create({
-//       data: {
-//         Experiment_Name: experiment,
-//         Device_Type: "Desktop",
-//       },
-//     });
-//     console.log("New experiment created");
-//   } catch (error) {
-//     console.error(
-//       "Error creating experiment with name ",
-//       experiment,
-//       "error message: ",
-//       error
-//     );
-//   }
-// }
-
 async function handleAddVariant(event, variant) {
   // destructure the variant object
   console.log(variant);
-  const { filePath, weight, experimentId } = variant;
-  console.log(filePath);
-  console.log(weight);
-  console.log(experimentId);
+  const {
+    filePath,
+    weight,
+    experimentId,
+    directoryPath,
+    experimentPath,
+    variantUuid,
+    experiment_uuid,
+  } = variant;
+  let new_directory_path = directoryPath;
+  console.log("basename", path.basename(directoryPath));
+  if (path.basename(directoryPath) === "src") new_directory_path += "/app";
+
+  // console.log(filePath);
+  // console.log(weight);
+  // console.log(experimentId);
   // add to database
   try {
     const newVariant = await prisma.Variants.create({
@@ -398,9 +491,53 @@ async function handleAddVariant(event, variant) {
         filePath: filePath,
         weights: weight,
         Experiment_Id: experimentId,
+
         // this is on the schema but may not be needed. For now a blank array
       },
     });
+    console.log(variantUuid);
+    //Add variants to supabase
+    axios.post("https://nimblebackend-te9u.onrender.com/createVariant", {
+      variant_id: variantUuid,
+      experimentId: experiment_uuid,
+      variant_weight: weight,
+      variant_name: filePath,
+    });
+
+    fs.mkdirSync(
+      path.join(new_directory_path, experimentPath, "variants", filePath)
+    );
+    //Creates variant in variants folder
+    fs.copyFile(
+      path.join(new_directory_path, experimentPath, `page.js`),
+      path.join(
+        new_directory_path,
+        experimentPath,
+        "variants",
+        `${filePath}`,
+        "page.js"
+      ),
+      (err) => console.log(err)
+    );
+
+    const data = fs.readFileSync(
+      path.join(directoryPath, "nimble.config.json")
+    );
+    const parsed_data = JSON.parse(data);
+    //Adds variant to corresponding experiment
+    for (let i = 0; i < parsed_data.length; i++) {
+      if (parsed_data[i].experiment_path === experimentPath) {
+        parsed_data[i].variants.push({
+          id: variantUuid,
+          fileName: filePath,
+          weight: weight,
+        });
+      }
+    }
+    fs.writeFileSync(
+      path.join(directoryPath, "nimble.config.json"),
+      JSON.stringify(parsed_data)
+    );
     console.log("New variant added");
   } catch (error) {
     console.error(
@@ -415,16 +552,19 @@ async function handleAddVariant(event, variant) {
 async function handleGetVariants(event, experimentId) {
   console.log("reached the getVariants function");
   try {
-    const variants = await prisma.variants.findMany({
+    const expVariants = await prisma.experiments.findMany({
       where: {
-        Experiment_Id: experimentId,
+        experiment_uuid: experimentId,
+      },
+      select: {
+        Variants: true,
       },
     });
-    console.log(variants);
-    return JSON.stringify(variants);
+    // console.log(variants);
+    return JSON.stringify(expVariants);
   } catch (error) {
     console.error(
-      "Error creating variant with experimentID ",
+      "Error retrieving variant with experimentID ",
       experimentId,
       "error message: ",
       error
@@ -432,16 +572,108 @@ async function handleGetVariants(event, experimentId) {
   }
 }
 
-function handleCreateTextEditor() {
-  createTextEditorModal();
-  // console.log('hi');
+async function handleGetExperiments(event, experimentId) {
+  console.log("reached the getExperiments function");
+  try {
+    const experiments = await prisma.experiments.findMany({
+      where: {
+        id: experimentId,
+      },
+    });
+    console.log(experiments);
+    return JSON.stringify(experiments);
+  } catch (error) {
+    console.error(
+      "Error fetching experiment with experimentID ",
+      experimentId,
+      "error message: ",
+      error
+    );
+  }
+}
+async function handleAddRepo(event, repo) {
+  // console.log(repo);
+  try {
+    const { FilePath } = repo;
+    // const data = await prisma.Repos.upsert({
+    //   where: { FilePath },
+    //   create: { FilePath },
+    //   update: { FilePath },
+    // });
+
+    const data = await prisma.Repos.create({
+      data: { FilePath },
+    });
+    console.log(data);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+//Creates Text Editor Modal
+async function handleCreateTextEditor(event, value) {
+  console.log(value);
+  console.log(Object.keys(value) + " are keys passed down");
+
+  const { filePath, experimentPath, directoryPath } = value;
+  let newDirectoryPath = directoryPath
+  if (path.basename(directoryPath) === 'src') newDirectoryPath += '/app'
+  await createTextEditorModal(
+    newDirectoryPath + experimentPath + "/variants" + '/'+ filePath + "/page.js"
+  );
+
+  // const data = fs.readFileSync(filePath)
+
+  console.log("hi");
+}
+
+//Gets the Repo from Local DB
+async function handleGetRepo(event, repoId) {
+  try {
+    const repo = await prisma.Repos.findFirst({
+      where: { id: repoId },
+    });
+    console.log(repo);
+    return repo;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function handleCloseModal(event, value) {
+  try {
+    const { data, filePath } = value;
+    console.log(data);
+    fs.writeFile(filePath, data, (err) => console.log(err));
+    childWindow.close();
+  } catch (err) {
+    console.log(err);
+  }
 }
 //Event Listeners for Client Side Actions
 ipcMain.handle("dialog:openFile", handleFileOpen);
 ipcMain.handle("directory:parsePaths", handleDirectoryPaths);
 ipcMain.handle("experiment:getExperiments", handleGetExperiments);
 ipcMain.handle("modal:createModal", handleCreateTextEditor);
-// database api
+ipcMain.handle("modal:closeModal", handleCloseModal);
+// Database API
 ipcMain.handle("database:addExperiment", handleAddExperiment);
 ipcMain.handle("database:addVariant", handleAddVariant);
 ipcMain.handle("database:getVariants", handleGetVariants);
+ipcMain.handle("database:addRepo", handleAddRepo);
+ipcMain.handle("database:getRepo", handleGetRepo);
+//File System API
+ipcMain.on("save-file", async (_event, value) => {
+  try {
+    const { data, filePath } = value;
+    if (filePath.includes(__dirname)) return;
+
+    console.log(data);
+    fs.writeFile(filePath, data, (err) => {
+      if (err) console.log(err);
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});

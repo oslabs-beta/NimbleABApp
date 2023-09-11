@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("electronAPI", {
   openFile: () => ipcRenderer.invoke("dialog:openFile"),
   parsePaths: () => ipcRenderer.invoke("directory:parsePaths"),
-  createModal: () => ipcRenderer.invoke("modal:createModal"),
+  createModal: (value) => ipcRenderer.invoke("modal:createModal", value),
   addExperiment: (experiment) =>
     ipcRenderer.invoke("database:addExperiment", experiment),
   addVariant: (variant) => ipcRenderer.invoke("database:addVariant", variant),
@@ -11,4 +11,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getExperiments: () => ipcRenderer.invoke("experiment:getExperiments"),
   getVariants: (experimentId) =>
     ipcRenderer.invoke("database:getVariants", experimentId),
+  getRepo: (repoId) => ipcRenderer.invoke("database:getRepo", repoId),
+  loadFile: (callback) => ipcRenderer.on("file-path", callback),
+  saveFile: (callback) => ipcRenderer.on("save-file", callback),
+  closeFile: (value) => ipcRenderer.invoke("modal:closeModal", value),
 });

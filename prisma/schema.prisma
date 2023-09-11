@@ -12,6 +12,8 @@ model Experiments {
   Experiment_Name String?
   Device_Type     String?
   Repo_id         Int?
+  experiment_path String?
+  experiment_uuid String?
   Repos           Repos?     @relation(fields: [Repo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Variants        Variants[]
 }
