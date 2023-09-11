@@ -155,11 +155,11 @@ async function createTextEditorModal(filePath) {
   childWindow.webContents.on("did-finish-load", () => {
     childWindow.setTitle(`Nimble Labs`);
 
-  //make sure not modifying files in this project directory
-  if (!filePath.includes(__dirname)){
-    const data = fs.readFileSync(filePath);
-    childWindow.webContents.send('file-path', {data, filePath})
-  }
+    //make sure not modifying files in this project directory
+    if (!filePath.includes(__dirname)) {
+      const data = fs.readFileSync(filePath);
+      childWindow.webContents.send("file-path", { data, filePath });
+    }
   });
 
   //Loads Redux DevTools when in DevMode
@@ -202,21 +202,21 @@ async function createTextEditorModal(filePath) {
 
   //Add Custom Menu Builder for the Modal
   //Add save button to menu
-  const menu = new Menu()
-  menu.append(new MenuItem(
-    {
-      label: 'File', 
+  const menu = new Menu();
+  menu.append(
+    new MenuItem({
+      label: "File",
       submenu: [
         {
-          click: () => childWindow.webContents.send('save-file'),
+          click: () => childWindow.webContents.send("save-file"),
           label: "Save",
-          accelerator: process.platform === 'darwin' ? 'Cmd+s' : 'Ctrl+s'
-        }
-      ]
-    }
-  ))
-  console.log(menu)
-  childWindow.setMenu(menu)
+          accelerator: process.platform === "darwin" ? "Cmd+s" : "Ctrl+s",
+        },
+      ],
+    })
+  );
+  console.log(menu);
+  childWindow.setMenu(menu);
 }
 
 // Needs to be called before app is ready;
@@ -337,7 +337,7 @@ async function handleFileOpen() {
 function handleDirectoryPaths() {
   const dirPath = store.get("directoryPath");
   console.log(dirPath);
-  const pathsArr = ['/'];
+  const pathsArr = ["/"];
   const fullPaths = [dirPath];
   const map = { app: "/" };
 
@@ -552,16 +552,19 @@ async function handleAddVariant(event, variant) {
 async function handleGetVariants(event, experimentId) {
   console.log("reached the getVariants function");
   try {
-    const variants = await prisma.variants.findMany({
+    const expVariants = await prisma.experiments.findMany({
       where: {
-        Experiment_Id: experimentId,
+        experiment_uuid: experimentId,
+      },
+      select: {
+        Variants: true,
       },
     });
     // console.log(variants);
-    return JSON.stringify(variants);
+    return JSON.stringify(expVariants);
   } catch (error) {
     console.error(
-      "Error creating variant with experimentID ",
+      "Error retrieving variant with experimentID ",
       experimentId,
       "error message: ",
       error
@@ -609,12 +612,18 @@ async function handleAddRepo(event, repo) {
 }
 
 //Creates Text Editor Modal
-async function handleCreateTextEditor(event, filePath) {
-  await createTextEditorModal(filePath);
+async function handleCreateTextEditor(event, value) {
+  console.log(value);
+  console.log(Object.keys(value) + " are keys passed down");
+
+  const { filePath, experimentPath, directoryPath } = value;
+  await createTextEditorModal(
+    directoryPath + experimentPath + "/variants" + filePath + "/page.js"
+  );
 
   // const data = fs.readFileSync(filePath)
 
-  console.log('hi');
+  console.log("hi");
 }
 
 //Gets the Repo from Local DB
@@ -630,23 +639,22 @@ async function handleGetRepo(event, repoId) {
   }
 }
 
-async function handleCloseModal (event, value) {
+async function handleCloseModal(event, value) {
   try {
-    const {data, filePath} = value;
-    console.log(data)
-    fs.writeFile(filePath, data, (err)=> console.log(err))
+    const { data, filePath } = value;
+    console.log(data);
+    fs.writeFile(filePath, data, (err) => console.log(err));
     childWindow.close();
-  } catch(err){
-    console.log(err)
+  } catch (err) {
+    console.log(err);
   }
-  
 }
 //Event Listeners for Client Side Actions
 ipcMain.handle("dialog:openFile", handleFileOpen);
 ipcMain.handle("directory:parsePaths", handleDirectoryPaths);
 ipcMain.handle("experiment:getExperiments", handleGetExperiments);
 ipcMain.handle("modal:createModal", handleCreateTextEditor);
-ipcMain.handle("modal:closeModal", handleCloseModal)
+ipcMain.handle("modal:closeModal", handleCloseModal);
 // Database API
 ipcMain.handle("database:addExperiment", handleAddExperiment);
 ipcMain.handle("database:addVariant", handleAddVariant);
@@ -654,18 +662,16 @@ ipcMain.handle("database:getVariants", handleGetVariants);
 ipcMain.handle("database:addRepo", handleAddRepo);
 ipcMain.handle("database:getRepo", handleGetRepo);
 //File System API
-ipcMain.on('save-file', async (_event, value)=> {
-  
+ipcMain.on("save-file", async (_event, value) => {
   try {
-    const {data, filePath} = value;
-    if (filePath.includes(__dirname)) return 
+    const { data, filePath } = value;
+    if (filePath.includes(__dirname)) return;
 
-    console.log(data)
-    fs.writeFile(filePath, data, (err)=> {
-      if (err) console.log(err)
-    })
-  } catch(err){
-    console.log(err)
+    console.log(data);
+    fs.writeFile(filePath, data, (err) => {
+      if (err) console.log(err);
+    });
+  } catch (err) {
+    console.log(err);
   }
-})
-
+});

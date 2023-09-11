@@ -24,7 +24,7 @@ const ExperimentDropDown: React.FC<any> = () => {
         console.log("Error fetching experiments");
       }
     };
-  }, []);
+  }, [open]);
 
   // return a button and drop down
 
