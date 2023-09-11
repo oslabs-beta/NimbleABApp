@@ -22,7 +22,7 @@ const CreateVariant: React.FC<VariantProps> = (props) => {
   const handleClick = async () => {
     // open the modal
     console.log("opened the modal");
-    await window.electronAPI.createModal(props.experimentPath);
+    await window.electronAPI.createModal('/home/ajkraus04/NimbleABApp/app/electron/preload.ts');
   };
 
   return (
