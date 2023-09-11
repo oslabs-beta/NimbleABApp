@@ -22,10 +22,12 @@ const activeExperiment = (): React.JSX.Element => {
   return (
     <div className="rounded-xl w-1/2 h-96 bg-slate-800 text-white p-2 flex flex-col items-center ">
       <h1 className="text-lg">Active Experiment</h1>
+      <h2>(Name, Path, Edit)</h2>
       <div className="divider before:bg-gray-500 after:bg-gray-500 w-full self-center"></div>
-      <div className="flex overflow-hidden flex-col gap-10 mt-4  mb-4 pr-2  w-96 rounded-md ">
+      <div className="flex overflow-hidden flex-col gap-10 mt-0 mb-2 pr-2  w-96 rounded-md ">
         {/* <button className="btn btn-primary">Open Directory</button> */}
-        {/* <p>Hello</p> */}
+        
+        
         <div className="overflow-auto">{receivedExperiments && expComp}</div>
         <div className="flex growplace-content-center">
           <p className="self-center"></p>

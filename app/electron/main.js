@@ -314,7 +314,7 @@ async function handleFileOpen() {
 function handleDirectoryPaths() {
   const dirPath = store.get("directoryPath");
   console.log(dirPath);
-  const pathsArr = [];
+  const pathsArr = ['/'];
   const fullPaths = [dirPath];
   const map = { app: "/" };
 

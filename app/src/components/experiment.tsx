@@ -28,7 +28,7 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
     setClicked(true);
   }
   return (
-    <div className="flex  gap-4 mb-4 justify-around">
+    <div className="flex  gap-4 mb-4 justify-around items-center">
       <div className="w-24 overflow-hidden">
         <p className="">{Experiment_Name}</p>
       </div>
@@ -38,6 +38,7 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
       <button onClick={handleEditClick} className="btn btn-success ">
         Edit
       </button>
+      {/* Sends State  to /config Page */}
       {clicked && (
         <Navigate
           to="/config"
@@ -47,7 +48,6 @@ const experiment = ({ data }: experimentProps): React.JSX.Element => {
             repoId: Repo_id,
             experimentId: experiment_uuid,
             directoryPath: fullFilePath,
-            //Need to also send james the fulldirectorypath
           }}
           replace={true}
         />
