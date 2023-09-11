@@ -176,16 +176,31 @@ const TestingConfig: React.FC = () => {
         id="variantAnchor"
         className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono"
       >
-        <h2>Variants</h2>
-        <table>
-          <thead>
+        <h2 className="text-white">Variants</h2>
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
-              <th>File Path</th>
-              <th>Weight</th>
-              <th>Device Type</th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              >
+                File Path
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              >
+                Weight
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              >
+                Device Type
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             {variants.map((variant, index) => (
               <tr key={index}>
                 <td>{variant.filePath}</td>
