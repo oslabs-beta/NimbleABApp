@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Variant } from "./TestingConfig";
+import CreateVariant from "./CreateVariant";
+import { experimentContext } from "./TestingConfig";
 
 interface VariantProps {
   variant: Variant[];
@@ -7,6 +9,23 @@ interface VariantProps {
 
 const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
   const [variants, setDisplayVariants] = useState<Variant[]>([]);
+  let directoryPath: string = "";
+  let experimentName: string = "";
+  let experimentPath: string = "";
+  let experimentId: string = "";
+  const context = useContext(experimentContext);
+  if (context) {
+    directoryPath = context.directoryPath;
+    experimentName = context.experimentName;
+    experimentPath = context.experimentPath;
+    experimentId = context.experimentId;
+  }
+
+  console.log(directoryPath + " successfully pulled off react context hook");
+  console.log(experimentName + " successfully pulled off react context hook");
+  console.log(experimentId + " successfully pulled off react context hook");
+  console.log(experimentPath + " successfully pulled off react context hook");
+
   // get the variant data to display
   useEffect(() => {
     setDisplayVariants(variant);
@@ -47,6 +66,14 @@ const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
               <td>{variant.filePath}</td>
               <td>{variant.weight}</td>
               <td>{variant.deviceType}</td>
+              <td>
+                <CreateVariant
+                  experimentID={experimentId}
+                  directoryPath={directoryPath}
+                  experimentPath={experimentPath}
+                  filePath={variant.filePath}
+                ></CreateVariant>
+              </td>
             </tr>
           ))}
         </tbody>

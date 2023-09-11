@@ -6,7 +6,7 @@ import VariantRow from "./VariantRow";
 import CreateVariant from "./CreateVariant";
 import { PrismaClient } from "@prisma/client";
 import { IElectronAPI } from "../../../../renderer";
-import { useContext, useEffect } from "react";
+import { createContext, useEffect } from "react";
 import NameExperiment from "./NameExperiment";
 import VariantDisplay from "./VariantDisplay";
 import exp from "constants";
@@ -47,6 +47,18 @@ interface Experiment {
   variants: [];
 }
 
+interface ExperimentContextType {
+  experimentId: any;
+  experimentPath: string;
+  repoId: string | number;
+  directoryPath: string;
+  experimentName: string;
+}
+
+export const experimentContext = createContext<ExperimentContextType | null>(
+  null
+);
+
 const TestingConfig: React.FC = () => {
   const [rows, setRows] = useState<React.FC<RowProps>[]>([]);
   const [totalWeight, setTotalWeight] = useState<number>(0);
@@ -58,6 +70,8 @@ const TestingConfig: React.FC = () => {
   const repoPath = useSelector(
     (state: RootState) => state.experiments.repoPath
   );
+
+  // useContext to pass the directory info to the child components
 
   const location = useLocation();
 
@@ -145,24 +159,35 @@ const TestingConfig: React.FC = () => {
 
   return (
     <div className="h-screen w-full bg-primary flex font-mono">
-      <div className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono">
-        {experimentName ? (
-          <p className="text-white">
-            Configuration for experiment <br></br>{" "}
-            <strong>{experimentName}</strong>
-          </p>
-        ) : (
-          "No experiment active; return to home and create new"
-        )}
-        <ExperimentDropDown></ExperimentDropDown>
-        <CreateVariant
-          experimentID={experimentId}
-          directoryPath={directoryPath}
-          experimentPath={experimentPath}
-        ></CreateVariant>
-        <ConfigureVariant></ConfigureVariant>
-      </div>
-      <VariantDisplay variant={variants}></VariantDisplay>
+      <experimentContext.Provider
+        value={{
+          experimentId,
+          experimentPath,
+          repoId,
+          directoryPath,
+          experimentName,
+        }}
+      >
+        <div className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono">
+          {experimentName ? (
+            <p className="text-white">
+              Configuration for experiment <br></br>{" "}
+              <strong>{experimentName}</strong>
+            </p>
+          ) : (
+            "No experiment active; return to home and create new"
+          )}
+
+          <ExperimentDropDown></ExperimentDropDown>
+          {/* <CreateVariant
+            experimentID={experimentId}
+            directoryPath={directoryPath}
+            experimentPath={experimentPath}
+          ></CreateVariant> */}
+          <ConfigureVariant></ConfigureVariant>
+        </div>
+        <VariantDisplay variant={variants}></VariantDisplay>
+      </experimentContext.Provider>
     </div>
   );
 };

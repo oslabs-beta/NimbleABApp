@@ -612,8 +612,14 @@ async function handleAddRepo(event, repo) {
 }
 
 //Creates Text Editor Modal
-async function handleCreateTextEditor(event, filePath) {
-  await createTextEditorModal(filePath);
+async function handleCreateTextEditor(event, value) {
+  console.log(value);
+  console.log(Object.keys(value) + " are keys passed down");
+
+  const { filePath, experimentPath, directoryPath } = value;
+  await createTextEditorModal(
+    directoryPath + experimentPath + "/variants" + filePath + "/page.js"
+  );
 
   // const data = fs.readFileSync(filePath)
 
