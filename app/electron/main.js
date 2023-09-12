@@ -19,7 +19,6 @@ const prisma = require("./prisma.ts");
 const reflect = require("reflect-metadata");
 
 const Protocol = require("./protocol");
-const MenuBuilder = require("./menu");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
@@ -66,12 +65,13 @@ async function createWindow() {
     },
   });
   //set initial background color
-  // win.setBackgroundColor('');
+  win.setBackgroundColor('#3b19fc');
 
   //Loads local server in DevMode. Modal Only Loads in Dev mode if chunks are changed. Production is Ready
   if (isDev) {
     win.loadURL(selfHost);
   } else {
+    
     win.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
@@ -233,6 +233,8 @@ protocol.registerSchemesAsPrivileged([
   },
 ]);
 
+//Set App Name
+app.setName('Nimble AB')
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -330,6 +332,8 @@ async function handleFileOpen() {
   if (!canceled) {
     store.set("directoryPath", filePaths[0]);
     return { basename: path.basename(filePaths[0]), fullPath: filePaths[0] };
+  }else {
+    return 
   }
 }
 
@@ -337,10 +341,10 @@ async function handleFileOpen() {
 function handleDirectoryPaths() {
   const dirPath = store.get("directoryPath");
   console.log(dirPath);
-  const pathsArr = ["/"];
+  const pathsArr = [];
   const fullPaths = [dirPath];
   const map = { app: "/" };
-
+  if (path.basename(dirPath) === 'app') pathsArr.push('/')
   //Recurses through directory only pulling acitve paths
   // Can make this more refined by looking for only directories with page.jsx in it
   function parsePaths(dirPath) {
@@ -709,3 +713,115 @@ ipcMain.on("save-file", async (_event, value) => {
     console.log(err);
   }
 });
+
+
+const isMac = process.platform === 'darwin'
+
+const template = [
+  // { role: 'appMenu' }
+  ...(isMac
+    ? [{
+        label: app.name,
+        submenu: [
+          { role: 'about' },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { role: 'hide' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit' }
+        ]
+      }]
+    : []),
+  // { role: 'fileMenu' }
+  {
+    label: 'File',
+    submenu: [
+      isMac ? { role: 'close' } : { role: 'quit' },
+      {click:()=>childWindow.webContents.send('save-file'),
+    label:"Save",
+    accelerator: process.platform === isMac ? "Cmd+s" : "Ctrl+s"}
+    ]
+  },
+  // { role: 'editMenu' }
+  {
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      ...(isMac
+        ? [
+            { role: 'pasteAndMatchStyle' },
+            { role: 'delete' },
+            { role: 'selectAll' },
+            { type: 'separator' },
+            {
+              label: 'Speech',
+              submenu: [
+                { role: 'startSpeaking' },
+                { role: 'stopSpeaking' }
+              ]
+            }
+          ]
+        : [
+            { role: 'delete' },
+            { type: 'separator' },
+            { role: 'selectAll' }
+          ])
+    ]
+  },
+  // { role: 'viewMenu' }
+  {
+    label: 'View',
+    submenu: [
+      { role: 'reload' },
+      { role: 'forceReload' },
+      { role: 'toggleDevTools' },
+      { type: 'separator' },
+      { role: 'resetZoom' },
+      { role: 'zoomIn' },
+      { role: 'zoomOut' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' }
+    ]
+  },
+  // { role: 'windowMenu' }
+  {
+    label: 'Window',
+    submenu: [
+      { role: 'minimize' },
+      { role: 'zoom' },
+      ...(isMac
+        ? [
+            { type: 'separator' },
+            { role: 'front' },
+            { type: 'separator' },
+            { role: 'window' }
+          ]
+        : [
+            { role: 'close' }
+          ])
+    ]
+  },
+  {
+    role: 'help',
+    submenu: [
+      {
+        label: 'Learn More',
+        click: async () => {
+          const { shell } = require('electron')
+          await shell.openExternal('https://nimbleab.io')
+        }
+      }
+    ]
+  }
+]
+
+const menu = Menu.buildFromTemplate(template)
+Menu.setApplicationMenu(menu)
