@@ -23,6 +23,12 @@ module.exports = merge(base, {
       base: "app://rse",
       chunks: ["modal"],
     }),
+    new HtmlWebpackPlugin({
+      filename:"loading.html",
+      template: "app/src/loading/index.html",
+      base: "app://rse",
+      chunks: ["loading"]
+    })
 
     // You can paste your CSP in this website https://csp-evaluator.withgoogle.com/
     // for it to give you suggestions on how strong your CSP is

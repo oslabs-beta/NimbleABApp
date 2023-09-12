@@ -32,6 +32,8 @@ const ExperimentCreate = (): React.JSX.Element => {
   const [repoId, setRepoId] = useState('');
   //Error Message State
   const [error, setError] = useState(false)
+  //Error Didnt Select a Repo
+  const [repoError, setRepoError] = useState(false)
 
   async function handleCreateExperiment(): Promise<void> {
     //Add Repo and Add Experiment
@@ -57,7 +59,9 @@ const ExperimentCreate = (): React.JSX.Element => {
   }
 
   async function handleClick() {
+    try {
     const { basename, fullPath } = await window.electronAPI.openFile();
+    setRepoError(false)
     console.log(basename);
     setFilePath(basename);
     console.log('the full path', fullPath);
@@ -66,6 +70,9 @@ const ExperimentCreate = (): React.JSX.Element => {
     const paths = await window.electronAPI.parsePaths();
     setDirPaths(paths);
     setAllowSelect(false);
+    }  catch(err) {
+      setRepoError(true)
+    }
   }
 
   function handleNameChange(name: string): void {
@@ -98,6 +105,7 @@ const ExperimentCreate = (): React.JSX.Element => {
         Create Experiment
       </button>
       {error && <p className='mt-2 text-error'>Experiment Path already in use</p>}
+      {repoError && <p className='mt-2 text-error'>Make sure to select a valid repo</p>}
       {configPage && (
         <Navigate
           to="/config"
