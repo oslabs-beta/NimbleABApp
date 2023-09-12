@@ -10,7 +10,7 @@
     "productName": "NimbleAB",
     "appId": "com.Nimble|electron.NimbleAB",
     "directories": {
-      "buildResources": "resources"
+      "buildResources": "images"
     },
     "files": [
       "app/dist/**/*",
