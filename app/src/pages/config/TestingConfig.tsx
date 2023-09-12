@@ -38,11 +38,20 @@ interface ExperimentContextType {
   repoId: string | number;
   directoryPath: string;
   experimentName: string;
+  reload: () => void;
 }
 
-export const experimentContext = createContext<ExperimentContextType | null>(
-  null
-);
+export const experimentContext = createContext<ExperimentContextType>({
+  experimentId: "",
+  experimentPath: "",
+  repoId: "",
+  directoryPath: "",
+  experimentName: "",
+  // there is a downstream typescript problem that requires a function to be placed here. Placeholder added. Go easy on us...
+  reload: () => {
+    return 1;
+  },
+});
 
 const TestingConfig: React.FC = () => {
   // declare state variables
@@ -50,12 +59,17 @@ const TestingConfig: React.FC = () => {
   const [totalWeight, setTotalWeight] = useState<number>(0);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [experimentObj, updateExperimentObj] = useState({});
-
+  const [reset, causeReset] = useState(false);
+  const [resetFlag, setResetFlag] = useState(false);
   // use Redux for the repo path
   const repoPath = useSelector(
     (state: RootState) => state.experiments.repoPath
   );
 
+  const changeHandler = () => {
+    setResetFlag((prevResetFlag) => !prevResetFlag);
+    console.log("Reached the change handler");
+  };
   // get state data sent from the home page
   const location = useLocation();
   const {
@@ -116,7 +130,7 @@ const TestingConfig: React.FC = () => {
 
   useEffect(() => {
     main();
-  }, []);
+  }, [resetFlag]);
 
   // getVariants(experimentId);
   //use effect to listen out for updates to variant rows
@@ -130,6 +144,7 @@ const TestingConfig: React.FC = () => {
           repoId,
           directoryPath,
           experimentName,
+          reload: changeHandler,
         }}
       >
         <div className="w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono">

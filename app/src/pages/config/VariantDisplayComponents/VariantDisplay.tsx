@@ -11,6 +11,8 @@ interface VariantProps {
 const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
   const [weightsWarning, setWeightsWarning] = useState(false);
   const [variants, setDisplayVariants] = useState<Variant[]>([]);
+  const [reset, causeReset] = useState(false);
+
   let directoryPath: string = "";
   let experimentName: string = "";
   let experimentPath: string = "";

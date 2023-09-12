@@ -1,8 +1,9 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import { experimentContext } from "../TestingConfig";
 interface VariantProps {
   // deviceType: string;
   weight: number | null;
@@ -13,11 +14,13 @@ interface VariantProps {
 const SubmitVariant: React.FC<VariantProps> = (props) => {
   const [variant, updateVariant] = useState({});
 
+  // let reload
+  const { reload } = useContext(experimentContext);
+
   const location = useLocation();
+
   const submitToDB = async () => {
     const variantUuid = uuidv4();
-
-    console.log(variantUuid + " is variant uuid");
     const {
       directoryPath,
       experimentId,
@@ -39,6 +42,7 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
       };
       await window.electronAPI.addVariant(variantObj);
       console.log("variant added");
+      reload();
     } catch (error) {
       console.log("error in the Submit Variant component ", error);
     }

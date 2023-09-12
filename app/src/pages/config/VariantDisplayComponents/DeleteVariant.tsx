@@ -1,12 +1,24 @@
 import React, { useState, useContext, createContext } from "react";
-
+import { experimentContext } from "../TestingConfig";
 interface DeleteProps {
   filePath: string;
 }
 const DeleteVariant: React.FC<DeleteProps> = (props) => {
   const [variantPath, setVariantPath] = useState("");
 
-  // get the "repo" path
+  const { reload } = useContext(experimentContext);
+
+  let directoryPath: string = "";
+  let experimentName: string = "";
+  let experimentPath: string = "";
+  let experimentId: string = "";
+  const context = useContext(experimentContext);
+  if (context) {
+    directoryPath = context.directoryPath;
+    experimentName = context.experimentName;
+    experimentPath = context.experimentPath;
+    experimentId = context.experimentId;
+  }
 
   const handleClick = async () => {
     // open the modal
@@ -15,6 +27,7 @@ const DeleteVariant: React.FC<DeleteProps> = (props) => {
     await window.electronAPI.removeVariant({
       filePath: props.filePath,
     });
+    reload();
   };
 
   return (
