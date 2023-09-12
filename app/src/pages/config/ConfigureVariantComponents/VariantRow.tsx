@@ -1,8 +1,10 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useState, useContext } from "react";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import CreateVariant from "../VariantDisplayComponents/EditVariant";
 import SubmitVariant from "./SubmitVariant";
+import { experimentContext } from "../TestingConfig";
+
 interface Row {
   variantURL: string;
   weight: number | null;
@@ -16,6 +18,18 @@ const VariantRow: React.FC = () => {
     weight: null,
     deviceType: "",
   });
+
+  let directoryPath: string = "";
+  let experimentName: string = "";
+  let experimentPath: string = "";
+  let experimentId: string = "";
+  const context = useContext(experimentContext);
+  if (context) {
+    directoryPath = context.directoryPath;
+    experimentName = context.experimentName;
+    experimentPath = context.experimentPath;
+    experimentId = context.experimentId;
+  }
 
   const [isDestroyed, setIsDestroyed] = useState(false);
 
@@ -71,7 +85,7 @@ const VariantRow: React.FC = () => {
       <SubmitVariant
         weight={thisRow.weight}
         filePath={thisRow.variantURL}
-        experiment_ID={1}
+        experiment_ID={experimentId}
       ></SubmitVariant>
       <button
         className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
