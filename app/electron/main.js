@@ -65,13 +65,12 @@ async function createWindow() {
     },
   });
   //set initial background color
-  win.setBackgroundColor('#3b19fc');
+  win.setBackgroundColor("#3b19fc");
 
   //Loads local server in DevMode. Modal Only Loads in Dev mode if chunks are changed. Production is Ready
   if (isDev) {
     win.loadURL(selfHost);
   } else {
-    
     win.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
@@ -234,7 +233,7 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 //Set App Name
-app.setName('Nimble AB')
+app.setName("Nimble AB");
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -332,8 +331,8 @@ async function handleFileOpen() {
   if (!canceled) {
     store.set("directoryPath", filePaths[0]);
     return { basename: path.basename(filePaths[0]), fullPath: filePaths[0] };
-  }else {
-    return 
+  } else {
+    return;
   }
 }
 
@@ -344,7 +343,7 @@ function handleDirectoryPaths() {
   const pathsArr = [];
   const fullPaths = [dirPath];
   const map = { app: "/" };
-  if (path.basename(dirPath) === 'app') pathsArr.push('/')
+  if (path.basename(dirPath) === "app") pathsArr.push("/");
   //Recurses through directory only pulling acitve paths
   // Can make this more refined by looking for only directories with page.jsx in it
   function parsePaths(dirPath) {
@@ -475,7 +474,6 @@ async function handleAddVariant(event, variant) {
   const {
     filePath,
     weight,
-    experimentId,
     directoryPath,
     experimentPath,
     variantUuid,
@@ -485,10 +483,16 @@ async function handleAddVariant(event, variant) {
   console.log("basename", path.basename(directoryPath));
   if (path.basename(directoryPath) === "src") new_directory_path += "/app";
 
-  // console.log(filePath);
-  // console.log(weight);
-  // console.log(experimentId);
-  // add to database
+  // front end doesn't have access to the integer ID. Use the uuid to get the integer to use for the local
+
+  const experimentObj = await prisma.Experiments.findFirst({
+    where: {
+      experiment_uuid: experiment_uuid,
+    },
+  });
+
+  const experimentId = experimentObj.id;
+
   try {
     const newVariant = await prisma.Variants.create({
       data: {
@@ -668,18 +672,21 @@ async function handleRemoveVariant(event, value) {
     const { data, filePath } = value;
     console.log(data);
     // query the database to get all IDs for a given filepath
-    const ids = await prisma.variants.findMany({
+    const variantObj = await prisma.variants.findMany({
       where: {
         filePath: filePath,
       },
     });
-    console.log("Table IDs below");
-    console.log(ids);
-    console.log(ids[0]);
+
     await prisma.variants.delete({
       where: {
-        id: ids[0].id,
+        id: variantObj[0].id,
       },
+    });
+
+    // remove from database
+    axios.delete("https://nimblebackend-te9u.onrender.com/deleteVariant", {
+      variant_id: variantObj[0].variantUuid,
     });
   } catch (err) {
     console.log(err);
@@ -714,114 +721,108 @@ ipcMain.on("save-file", async (_event, value) => {
   }
 });
 
-
-const isMac = process.platform === 'darwin'
+const isMac = process.platform === "darwin";
 
 const template = [
   // { role: 'appMenu' }
   ...(isMac
-    ? [{
-        label: app.name,
-        submenu: [
-          { role: 'about' },
-          { type: 'separator' },
-          { role: 'services' },
-          { type: 'separator' },
-          { role: 'hide' },
-          { role: 'hideOthers' },
-          { role: 'unhide' },
-          { type: 'separator' },
-          { role: 'quit' }
-        ]
-      }]
+    ? [
+        {
+          label: app.name,
+          submenu: [
+            { role: "about" },
+            { type: "separator" },
+            { role: "services" },
+            { type: "separator" },
+            { role: "hide" },
+            { role: "hideOthers" },
+            { role: "unhide" },
+            { type: "separator" },
+            { role: "quit" },
+          ],
+        },
+      ]
     : []),
   // { role: 'fileMenu' }
   {
-    label: 'File',
+    label: "File",
     submenu: [
-      isMac ? { role: 'close' } : { role: 'quit' },
-      {click:()=>childWindow.webContents.send('save-file'),
-    label:"Save",
-    accelerator: process.platform === isMac ? "Cmd+s" : "Ctrl+s"}
-    ]
+      isMac ? { role: "close" } : { role: "quit" },
+      {
+        click: () => childWindow.webContents.send("save-file"),
+        label: "Save",
+        accelerator: process.platform === isMac ? "Cmd+s" : "Ctrl+s",
+      },
+    ],
   },
   // { role: 'editMenu' }
   {
-    label: 'Edit',
+    label: "Edit",
     submenu: [
-      { role: 'undo' },
-      { role: 'redo' },
-      { type: 'separator' },
-      { role: 'cut' },
-      { role: 'copy' },
-      { role: 'paste' },
+      { role: "undo" },
+      { role: "redo" },
+      { type: "separator" },
+      { role: "cut" },
+      { role: "copy" },
+      { role: "paste" },
       ...(isMac
         ? [
-            { role: 'pasteAndMatchStyle' },
-            { role: 'delete' },
-            { role: 'selectAll' },
-            { type: 'separator' },
+            { role: "pasteAndMatchStyle" },
+            { role: "delete" },
+            { role: "selectAll" },
+            { type: "separator" },
             {
-              label: 'Speech',
-              submenu: [
-                { role: 'startSpeaking' },
-                { role: 'stopSpeaking' }
-              ]
-            }
+              label: "Speech",
+              submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
+            },
           ]
-        : [
-            { role: 'delete' },
-            { type: 'separator' },
-            { role: 'selectAll' }
-          ])
-    ]
+        : [{ role: "delete" }, { type: "separator" }, { role: "selectAll" }]),
+    ],
   },
   // { role: 'viewMenu' }
   {
-    label: 'View',
+    label: "View",
     submenu: [
-      { role: 'reload' },
-      { role: 'forceReload' },
-      { role: 'toggleDevTools' },
-      { type: 'separator' },
-      { role: 'resetZoom' },
-      { role: 'zoomIn' },
-      { role: 'zoomOut' },
-      { type: 'separator' },
-      { role: 'togglefullscreen' }
-    ]
+      { role: "reload" },
+      { role: "forceReload" },
+      { role: "toggleDevTools" },
+      { type: "separator" },
+      { role: "resetZoom" },
+      { role: "zoomIn" },
+      { role: "zoomOut" },
+      { type: "separator" },
+      { role: "togglefullscreen" },
+    ],
   },
   // { role: 'windowMenu' }
   {
-    label: 'Window',
+    label: "Window",
     submenu: [
-      { role: 'minimize' },
-      { role: 'zoom' },
+      { role: "minimize" },
+      { role: "zoom" },
       ...(isMac
         ? [
-            { type: 'separator' },
-            { role: 'front' },
-            { type: 'separator' },
-            { role: 'window' }
+            { type: "separator" },
+            { role: "front" },
+            { type: "separator" },
+            { role: "window" },
           ]
-        : [
-            { role: 'close' }
-          ])
-    ]
+        : [{ role: "close" }]),
+    ],
   },
   {
-    role: 'help',
+    role: "help",
     submenu: [
       {
-        label: 'Learn More',
+        label: "Learn More",
         click: async () => {
-          const { shell } = require('electron')
-          await shell.openExternal('https://nimbleab.io')
-        }
-      }
-    ]
-  }
-]
+          const { shell } = require("electron");
+          await shell.openExternal("https://nimbleab.io");
+        },
+      },
+    ],
+  },
+];
 
-const menu = Menu.buildFromTemplate(template)
-Menu.setApplicationMenu(menu)
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);

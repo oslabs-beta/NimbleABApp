@@ -7,7 +7,7 @@ interface VariantProps {
   // deviceType: string;
   weight: number | null;
   filePath: string;
-  experiment_ID: number;
+  experiment_ID: number | string;
 }
 
 const SubmitVariant: React.FC<VariantProps> = (props) => {
