@@ -617,10 +617,15 @@ async function handleCreateTextEditor(event, value) {
   console.log(Object.keys(value) + " are keys passed down");
 
   const { filePath, experimentPath, directoryPath } = value;
-  let newDirectoryPath = directoryPath
-  if (path.basename(directoryPath) === 'src') newDirectoryPath += '/app'
+  let newDirectoryPath = directoryPath;
+  if (path.basename(directoryPath) === "src") newDirectoryPath += "/app";
   await createTextEditorModal(
-    newDirectoryPath + experimentPath + "/variants" + '/'+ filePath + "/page.js"
+    newDirectoryPath +
+      experimentPath +
+      "/variants" +
+      "/" +
+      filePath +
+      "/page.js"
   );
 
   // const data = fs.readFileSync(filePath)
@@ -651,6 +656,31 @@ async function handleCloseModal(event, value) {
     console.log(err);
   }
 }
+
+async function handleRemoveVariant(event, value) {
+  const { filePath } = value;
+  console.log("reached removeVariant. Variant path to remove " + filePath);
+  try {
+    const { data, filePath } = value;
+    console.log(data);
+    // query the database to get all IDs for a given filepath
+    const ids = await prisma.variants.findMany({
+      where: {
+        filePath: filePath,
+      },
+    });
+    console.log("Table IDs below");
+    console.log(ids);
+    console.log(ids[0]);
+    await prisma.variants.delete({
+      where: {
+        id: ids[0].id,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
+}
 //Event Listeners for Client Side Actions
 ipcMain.handle("dialog:openFile", handleFileOpen);
 ipcMain.handle("directory:parsePaths", handleDirectoryPaths);
@@ -663,6 +693,8 @@ ipcMain.handle("database:addVariant", handleAddVariant);
 ipcMain.handle("database:getVariants", handleGetVariants);
 ipcMain.handle("database:addRepo", handleAddRepo);
 ipcMain.handle("database:getRepo", handleGetRepo);
+ipcMain.handle("database:removeVariant", handleRemoveVariant);
+
 //File System API
 ipcMain.on("save-file", async (_event, value) => {
   try {

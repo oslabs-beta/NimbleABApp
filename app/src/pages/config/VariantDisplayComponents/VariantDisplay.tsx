@@ -9,6 +9,7 @@ interface VariantProps {
 }
 
 const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
+  const [weightsWarning, setWeightsWarning] = useState(false);
   const [variants, setDisplayVariants] = useState<Variant[]>([]);
   let directoryPath: string = "";
   let experimentName: string = "";
@@ -24,6 +25,14 @@ const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
   // get the variant data to display
   useEffect(() => {
     setDisplayVariants(variant);
+
+    const totalWeight = variant.reduce(
+      (sum, currentVariant) => sum + currentVariant.weight,
+      0
+    );
+    if (totalWeight != 100) {
+      setWeightsWarning(true);
+    }
   }, [variant]);
 
   return (
@@ -51,7 +60,13 @@ const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
             >
-              Device Type
+              Edit
+            </th>
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Delete
             </th>
           </tr>
         </thead>
@@ -68,10 +83,22 @@ const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
                   filePath={variant.filePath}
                 ></CreateVariant>
               </td>
+              <td>
+                <DeleteVariant filePath={variant.filePath}></DeleteVariant>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {weightsWarning ? (
+        <div className="text-white">
+          <p className="text-red">
+            Warning - weights must sum to 100 for experiment to be valid
+          </p>
+        </div>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 };

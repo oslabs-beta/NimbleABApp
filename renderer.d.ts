@@ -11,6 +11,7 @@ export interface IElectronAPI {
   loadFile: (callback: any) => Promise<any>;
   saveFile: (callback: any) => Promise<any>;
   closeFile: (value: any) => Promise<any>;
+  removeVariant: (variant: object) => Promise<any>;
 }
 
 declare global {
