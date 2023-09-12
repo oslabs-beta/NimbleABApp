@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   updateExperimentName,
   updateExperimentId,
-} from "../../redux/experimentsSlice";
+} from "../../../redux/experimentsSlice";
 
 interface RootState {
   experimentName: string;

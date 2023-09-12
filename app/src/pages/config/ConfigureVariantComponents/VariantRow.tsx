@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
-import CreateVariant from "./CreateVariant";
+import CreateVariant from "../VariantDisplayComponents/EditVariant";
 import SubmitVariant from "./SubmitVariant";
 interface Row {
   variantURL: string;
