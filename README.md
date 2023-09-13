@@ -62,7 +62,7 @@ The package expects a config object in the following format:
   }
 ```
 
-A user can either configure a static test independent of our underlying experiment platform by adjusting weights and URLs on the static config deployed on an edge function that can run Javascript. The package will not function properly without weights summing to 100 so be sure to validate this. Verbose erroring in this case is a future roadmap feature.
+A user can either configure a static test independent of our underlying experiment platform by adjusting weights and URLs on the static config deployed on an edge function that can run Javascript. The package will not function properly without weights summing to 100 so be sure to validate this. Verbose erroring in this case is a future roadmap feature. Make sure that all IDs are valid UUID Version 4.
 
 A user can also call our API to return variants using their experiment Id. This can be found in the nimble.config.json file on your local repo after experiment creation in the Electron app. 
 
