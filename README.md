@@ -61,7 +61,7 @@ The package expects a config object in the following format:
     ]
   }
 ]
-
+```
 
 A user can either configure a static test independent of our underlying experiment platform by adjusting weights and URLs on the static config deployed on an edge function that can run Javascript. The package will not function properly without weights summing to 100 so be sure to validate this. Verbose erroring in this case is a future roadmap feature.
 
