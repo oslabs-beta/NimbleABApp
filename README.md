@@ -25,7 +25,7 @@ For more info visit our [website](https://nimbleab.io/) or read our [Medium arti
 
 **Mac Users, If you are unable to open the app make sure to drag the application to the Applications folder and run the following command:**
 
-`sudo xattr -r -d com.apple.quarantine ‘/Applications/nimbleAB.app’`
+`sudo xattr -r -d com.apple.quarantine /Applications/nimbleAB.app`
 
 ## Usage
 Nimble AB offers an NPM package for SSG decisioning that can be installed here (placeholder)
