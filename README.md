@@ -71,11 +71,16 @@ A user can also call our API to return variants using their experiment Id. This 
 Nimble Labs is proud to offer our open source Desktop app for public use. Download link is above. To use:
 
 - Dowload the desktop app (links above)  
-- Create an experiment  
+- Create an experiment
+   - Name your experiment something semantic
    - Press the Open Directory button  
-   - Select the repo's parent directory  
-   - Once the parent directory is selected, then select the folder where a page.js file should contain the test's base page source  
-   - Press create experiment to be taken to the variants config  
+   - Navigate to a Next JS project
+   - Choose your project's src or app directory  
+   - Once the directory is selected, then select the path that you would like to run the experiment on  
+   - Press create experiment to be taken to the variants config page
+-Active Experiments
+   - Visualize your active experiments in progress and the path they are deployed on
+   - Click the edit button edit existing variants on your experiment
 - Configure variants  
    - Add variants using the inputs at the top of the page. The file path will be the name of the file storing the variant, so naming in a semantically useful way is recommended.  
    - Create the weight for the variant. Many tests will be 50/50 or 33/33/34 but customize the weights as needed to achieve the randomness desired to meet business requirements.  
@@ -94,13 +99,15 @@ Highest priority
 * Backwards compatibility to older versions of NextJs (<13.0)
 * Github deploys from the UI
 * Support for Typescript projects
+* Ability to delete experiments
 * Validation improvements on our Front End (weights validation doesn't take place currently and is on the user)
 * Project validation (provide user feedback if their project isn't NextJs validated)
 
 Future facing
-* Adding file tree into the editor 
+* Adding file tree into the editor
 * CLI support for experiment maintenance
 * Verbose error handling on client
+* End to End Testing
 
 Contributions are appreciated and will be reviewed as fast as we are able. Merged contributions will be credited as authors.
 
