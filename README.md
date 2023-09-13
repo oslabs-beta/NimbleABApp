@@ -22,7 +22,9 @@ For more info visit our [website](https://nimbleab.io/) or read our [Medium arti
 ## Download
 [Windows](https://nimbleab-production-build.s3.us-east-2.amazonaws.com/NimbleAB+Setup+1.0.0.exe)
 [Mac](https://nimbleab-production-build.s3.us-east-2.amazonaws.com/NimbleAB-1.0.0-arm64-mac.zip)
+
 **Mac Users, If unable to open the application make sure to drag the applicatin to the applications folder and run the following command:**
+
 `sudo xattr -r -d com.apple.quarantine ‘/Applications/nimbleAB.app’`
 
 ## Usage
