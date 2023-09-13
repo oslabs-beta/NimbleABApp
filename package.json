@@ -10,16 +10,21 @@
     "productName": "NimbleAB",
     "appId": "com.Nimble|electron.NimbleAB",
     "directories": {
-      "buildResources": "images"
+      "buildResources": "resources"
     },
+    "asar": "true",
+    "asarUnpack": "**/query-engine-windows.exe",
     "files": [
       "app/dist/**/*",
       "app/electron/**/*"
     ],
     "win": {
       "target": [
-        "nsis",
-        "msi"
+        {
+          "target":"nsis",
+          "arch":["x64"]
+        }
+      
       ]
     },
     "linux": {
@@ -31,7 +36,7 @@
       ]
     },
     "extraResources": [
-      "prisma/**/*",
+      "prisma/nimbleStore2.db",
       "node_modules/.prisma/**/*",
       "node_modules/@prisma/client/**/*"
     ]
@@ -46,7 +51,7 @@
     "pack": "electron-builder --dir",
     "dist": "npm run test && npm run prod-build && electron-builder",
     "dist-mac": "npm run test && npm run prod-build && electron-builder --mac",
-    "dist-linux": "npm run test && npm run prod-build && electron-builder --linux",
+    "dist-linux": "npm run prod-build && electron-builder --linux",
     "dist-windows": "npm run prod-build && electron-builder --windows",
     "dist-all": "npx prisma generate && npm run prod-build && npx prisma generate && electron-builder install-app-deps && electron-builder --mac --linux --windows",
     "test": "mocha"

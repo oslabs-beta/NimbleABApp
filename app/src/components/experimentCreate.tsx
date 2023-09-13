@@ -40,8 +40,9 @@ const ExperimentCreate = (): React.JSX.Element => {
     const repo_data = await window.electronAPI.addRepo({
       FilePath: fullFilePath,
     });
-    const { id } = repo_data;
-    setRepoId(id);
+    // const { id } = repo_data;
+    const id = "2"
+    setRepoId("2");
     const data = await window.electronAPI.addExperiment({
       Experiment_name: experimentName,
       Device_Type: 'desktop',
