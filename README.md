@@ -38,6 +38,24 @@ The package expects a config object in the following format:
 \```
 insert config
 \```
+## Features Roadmap
+Open issues for any issues encountered and the team will investigate and implement fixes as able. 
+
+Our longer term features roadmap is as follows:
+
+# Highest priority
+* Backwards compatibility to older versions of NextJs (<13.0)
+* Github deploys from the UI
+* Support for Typescript projects
+* Validation improvements on our Front End (weights validation doesn't take place currently and is on the user)
+* Project validation (provide user feedback if their project isn't NextJs validated)
+
+# Future facing
+* Adding file tree into the editor 
+* CLI support for experiment maintenance
+* Verbose error handling on client
+
+Contributions are appreciated and will be reviewed as fast as we are able.
 
 ## Authors
 | Developed By |                                                                     Github                                                                      |                                                                   LinkedIn                                                                    |
