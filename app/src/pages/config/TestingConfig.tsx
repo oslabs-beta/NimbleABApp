@@ -2,36 +2,22 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
-import VariantRow from "./VariantRow";
-import CreateVariant from "./CreateVariant";
+import VariantRow from "./ConfigureVariantComponents/VariantRow";
+import CreateVariant from "./VariantDisplayComponents/EditVariant";
 import { PrismaClient } from "@prisma/client";
 import { IElectronAPI } from "../../../../renderer";
 import { createContext, useEffect } from "react";
-import NameExperiment from "./NameExperiment";
-import VariantDisplay from "./VariantDisplay";
+import VariantDisplay from "./VariantDisplayComponents/VariantDisplay";
 import exp from "constants";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation } from "react-router-dom";
 import { UseSelector } from "react-redux/es/hooks/useSelector";
-import ExperimentDropDown from "./ExperimentDropDown";
-import ConfigureVariant from "./ConfigureVariant";
+import ExperimentDropDown from "./Unused/ExperimentDropDown";
+import ConfigureVariant from "./ConfigureVariantComponents/ConfigureVariant";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-// initialize Supabase client
+import TestConfigInstructions from "./TestConfigInstructions";
 
-// current defects:
-// 1. Doesn't build an experiment object
-// 2. Doesn't post to the database
-// 3. Existing variants aren't displayed correctly
-// 4. Layout of new creation fields
-// 5. No modal on click
-// 6. No back button to homepage
-// 7. Change database IDs to UUIDs
-
-const supabaseUrl = "https://tawrifvzyjqcddwuqjyq.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhd3JpZnZ6eWpxY2Rkd3VxanlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI2NTc2MjcsImV4cCI6MjAwODIzMzYyN30.-VekGbd6Iwey0Q32SQA0RxowZtqSlDptBhlt2r-GZBw";
-const supabase = createClient(supabaseUrl, supabaseKey);
 interface RowProps {
   index: number;
 }
@@ -53,86 +39,80 @@ interface ExperimentContextType {
   repoId: string | number;
   directoryPath: string;
   experimentName: string;
+  reload: () => void;
 }
 
-export const experimentContext = createContext<ExperimentContextType | null>(
-  null
-);
+export const experimentContext = createContext<ExperimentContextType>({
+  experimentId: "",
+  experimentPath: "",
+  repoId: "",
+  directoryPath: "",
+  experimentName: "",
+  // there is a downstream typescript problem that requires a function to be placed here. Placeholder added. Go easy on us...
+  reload: () => {
+    return 1;
+  },
+});
 
 const TestingConfig: React.FC = () => {
+  // declare state variables
   const [rows, setRows] = useState<React.FC<RowProps>[]>([]);
   const [totalWeight, setTotalWeight] = useState<number>(0);
-
   const [variants, setVariants] = useState<Variant[]>([]);
-  // const [experimentName, updateExperimentName] = useState<string>("");
-  // const [experimentId, updateExperimentId] = useState(0);
-
+  const [experimentObj, updateExperimentObj] = useState({});
+  const [reset, causeReset] = useState(false);
+  const [resetFlag, setResetFlag] = useState(false);
+  // use Redux for the repo path
   const repoPath = useSelector(
     (state: RootState) => state.experiments.repoPath
   );
 
-  // useContext to pass the directory info to the child components
-
+  const changeHandler = () => {
+    setResetFlag((prevResetFlag) => !prevResetFlag);
+    console.log("Reached the change handler");
+  };
+  // get state data sent from the home page
   const location = useLocation();
-
-  // Access the state data you passed in the Navigate component
   const {
     experimentName,
     experimentPath,
     repoId,
     experimentId,
     directoryPath,
-    // Other state data you passed
   } = location.state;
 
-  // build this throughout and then submit
-  const [experimentObj, updateExperimentObj] = useState({});
-
+  // get variants data from the server
   const getVariants = async (id: number | string) => {
     try {
-      // this is a typescript error that doesn't prevent us from running. We're going to leave it this way and debut post demo
-      console.log("reached getVariants");
-      console.log(experimentId);
+      // async call to the local server
       const variantsString = await window.electronAPI.getVariants(experimentId);
+      // returned as a JSON formatted string; parse out
       const rawVariants = JSON.parse(variantsString);
+      // the server returns an object with an array of length 1 containing an array of objects. This is due Prisma default formatting. Assign the variants variable this array of variant objects
       const variants = rawVariants[0].Variants;
-
-      console.log("reached getVariants func after api call");
-      console.log("Variants retrieved: ", variants);
-
+      // generate the meaningful data we want
       const newVariants = variants.map((variant: any) => ({
         filePath: variant.filePath,
-        weight: variant.weight,
-        deviceType: variant.deviceType,
+        weight: variant.weights,
+        deviceType: variant.deviceType, // deprecated ; removal of variant-level references to device type is an opp to address tech debt
       }));
 
-      console.log("Done with the newVariants declaration");
-      console.log(newVariants.length);
-      console.log(newVariants);
       setVariants(newVariants); // Update the variants state
     } catch (error) {
       console.error("An error occurred:", error);
     }
   };
 
-  const handleSubmit = () => {
-    if (totalWeight === 100) {
-      // Submit logic here
-      console.log("Weights are valid. Submitting...");
-    } else {
-      alert("Weights must sum up to 100%.");
-    }
-  };
-
   // component functionality: get experiment if exists on user's local
   async function getExperimentdata() {
     const experimentData = await window.electronAPI.getExperiments();
-    // if experiment data is falsy, inform the user
+    // if experiment data is falsy, inform the user. This indicates larger breakage
     if (!experimentData) {
-      alert("No experiment was found");
+      alert(
+        "No experiment was found - please contact Nimble Team with bug report"
+      );
     } else {
       console.log("Returned the experiment data");
-
       return experimentData;
     }
   }
@@ -151,14 +131,14 @@ const TestingConfig: React.FC = () => {
 
   useEffect(() => {
     main();
-    console.log(variants);
-  }, []);
+  }, [resetFlag]);
 
   // getVariants(experimentId);
   //use effect to listen out for updates to variant rows
-
+  // rounded-xl w-1/2 h-96 bg-slate-800 text-white p-2 flex flex-col items-center
   return (
-    <div className="h-screen w-full bg-primary flex font-mono">
+    <div className="h-screen w-full p-10 flex flex-col items-center bg-gradient-to-r from-teal-500 to-indigo-800 h-screen">
+      {" "}
       <experimentContext.Provider
         value={{
           experimentId,
@@ -166,27 +146,24 @@ const TestingConfig: React.FC = () => {
           repoId,
           directoryPath,
           experimentName,
+          reload: changeHandler,
         }}
       >
-        <div className="h-screen w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono">
-          {experimentName ? (
-            <p className="text-white">
-              Configuration for experiment <br></br>{" "}
-              <strong>{experimentName}</strong>
-            </p>
-          ) : (
-            "No experiment active; return to home and create new"
-          )}
-
-          <ExperimentDropDown></ExperimentDropDown>
-          {/* <CreateVariant
-            experimentID={experimentId}
-            directoryPath={directoryPath}
-            experimentPath={experimentPath}
-          ></CreateVariant> */}
-          <ConfigureVariant></ConfigureVariant>
+        <div className="flex">
+          <div className="w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono border border-gray-50 items-center bg-slate-800">
+            {experimentName ? (
+              <p className="text-white items-center">
+                Configuration for experiment <br></br>{" "}
+                <strong className="text-lg">{experimentName}</strong>
+              </p>
+            ) : (
+              "No experiment active; return to home and create new"
+            )}
+            <ConfigureVariant></ConfigureVariant>
+          </div>
+          <VariantDisplay variant={variants}></VariantDisplay>
         </div>
-        <VariantDisplay variant={variants}></VariantDisplay>
+        <TestConfigInstructions></TestConfigInstructions>
       </experimentContext.Provider>
     </div>
   );

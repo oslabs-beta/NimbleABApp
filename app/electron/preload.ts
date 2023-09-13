@@ -15,4 +15,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   loadFile: (callback) => ipcRenderer.on("file-path", callback),
   saveFile: (callback) => ipcRenderer.on("save-file", callback),
   closeFile: (value) => ipcRenderer.invoke("modal:closeModal", value),
+  removeVariant: (value) => ipcRenderer.invoke("database:removeVariant", value),
 });

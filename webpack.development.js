@@ -33,10 +33,10 @@ module.exports = merge(base, {
       template: 'app/src/modal/index.html',
       chunks: ['modal'],
     }),
-    // new HtmlWebpackPlugin({
-    //   filename: 'modal.html',
-    //   template: 'app/src/modal/index.html',
-    //   base: 'app://rse',
-    // }),
+    new HtmlWebpackPlugin({
+      filename: 'loading.html',
+      template: 'app/src/loading/index.html',
+      chunks: ['loading'],
+    }),
   ],
 });
