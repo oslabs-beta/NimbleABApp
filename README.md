@@ -1,7 +1,7 @@
 ## NimbleABApp
 
 <br />
-  <div align="start">
+  <div align="left">
     <img src="./images/icon.png" alt="Logo" width="200" height="auto">
   </div>
 <br />
