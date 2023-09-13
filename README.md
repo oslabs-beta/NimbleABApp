@@ -66,22 +66,23 @@ A user can either configure a static test independent of our underlying experime
 
 A user can also call our API to return variants using their experiment Id. This can be found in the nimble.config.json file on your local repo after experiment creation in the Electron app. 
 
-**Desktop app usage**
+**Desktop app usage**  
+
 Nimble Labs is proud to offer our open source Desktop app for public use. Download link is above. To use:
 
 1. Dowload the desktop app (links above)
-2. Create an experiment 
-   2.1. Press the Open Directory button
-   2.2. Select the repo's parent directory
+2. Create an experiment
+   2.1. Press the Open Directory button  
+   2.2. Select the repo's parent directory  
    2.3. Once the parent directory is selected, then select the folder where a page.js file should contain the test's base page source
    2.4. Press create experiment to be taken to the variants config
-3. Configure variants
+4. Configure variants
    3.1. Add variants using the inputs at the top of the page. The file path will be the name of the file storing the variant, so naming in a semantically useful way is recommended. 
    3.2. Create the weight for the variant. Many tests will be 50/50 or 33/33/34 but customize the weights as needed to achieve the randomness desired to meet business requirements. 
    3.3. Once all variants have been configured, hit edit to make adjustments as needed
-4. Edit variant code
+5. Edit variant code
    4.1. Hit edit on the variants table to make changes to the variants. Ensure to save when finished; these changes will save down to your local.
-5. Deploy
+6. Deploy
    5.1. Once all edits are complete, the necessary middleware will be automatically saved down into the nimble.config.json file and the variants folder inside your local repo. Just deploy the new pages to your hosting infrastructure and the middleware will perform decisioning according to the weights previously configured.
 
 **
