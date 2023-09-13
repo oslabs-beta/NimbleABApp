@@ -85,7 +85,6 @@ Nimble Labs is proud to offer our open source Desktop app for public use. Downlo
 - Deploy  
    - Once all edits are complete, the necessary middleware will be automatically saved down into the nimble.config.json file and the variants folder inside your local repo. Just deploy the new pages to your hosting infrastructure, and the middleware will perform decisioning according to the weights previously configured.
 
-**
 ## Features Roadmap
 Open issues for any issues encountered and the team will investigate and implement fixes as able. 
 
