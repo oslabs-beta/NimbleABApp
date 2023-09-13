@@ -28,6 +28,11 @@ Nimble AB offers an NPM package for SSG decisioning that can be installed here (
 
 Our Desktop app can be used for full end to end test construction and variant creation. Download link is above. Create experiments, build and edit variants, and use config files generated to your local repo on your CDN to serve pages. 
 
+**NPM Package Usage**
+Install the package below
+
+`npm install nimbleab`
+
 ## Authors
 | Developed By |                                                                     Github                                                                      |                                                                   LinkedIn                                                                    |
 | :----------: | :---------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------: |
