@@ -13,18 +13,22 @@
       "buildResources": "resources"
     },
     "asar": "true",
-    "asarUnpack": "**/query-engine-windows.exe",
     "files": [
       "app/dist/**/*",
       "app/electron/**/*"
     ],
+    "mac":{
+      "category": "public.app-category.productivity",
+      "target": "default"
+    },
     "win": {
       "target": [
         {
-          "target":"nsis",
-          "arch":["x64"]
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
         }
-      
       ]
     },
     "linux": {
@@ -50,7 +54,7 @@
     "prod": "npm run prod-build && electron .",
     "pack": "electron-builder --dir",
     "dist": "npm run test && npm run prod-build && electron-builder",
-    "dist-mac": "npm run test && npm run prod-build && electron-builder --mac",
+    "dist-mac": "npm run prod-build && electron-builder --mac",
     "dist-linux": "npm run prod-build && electron-builder --linux",
     "dist-windows": "npm run prod-build && electron-builder --windows",
     "dist-all": "npx prisma generate && npm run prod-build && npx prisma generate && electron-builder install-app-deps && electron-builder --mac --linux --windows",
@@ -77,9 +81,8 @@
     "glob": "^10.3.3",
     "install": "^0.13.0",
     "npm": "^9.8.1",
-    "prisma": "^5.2.0",
-    "process": "^0.11.10",
     "postcss": "^8.4.28",
+    "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.2",
@@ -122,7 +125,7 @@
     "css-minimizer-webpack-plugin": "^4.0.0",
     "daisyui": "^3.6.3",
     "electron": "^19.0.10",
-    "electron-builder": "^23.1.0",
+    "electron-builder": "^22.13.1",
     "electron-debug": "^3.2.0",
     "html-loader": "^4.1.0",
     "html-webpack-plugin": "^5.5.0",
