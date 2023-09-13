@@ -459,6 +459,7 @@ async function handleAddExperiment(event, experiment) {
 
     console.log("New experiment created");
   } catch (error) {
+    return error;
     console.error(
       "Error creating experiment with name ",
       experiment,
