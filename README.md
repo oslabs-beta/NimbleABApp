@@ -35,19 +35,33 @@ Install the package below
 
 The package expects a config object in the following format: 
 
-\```
+```json
 [
-{"experiment_path":"/pages",
-  "experiment_name":"Blog test 2",
-  "experiment_id":"57056b01-39bd-43c5-85e1-fba6611bb2b2",
-  "device_type":"desktop",
-  "variants":[
-      {"id":"333896e0-09e7-4b29-9398-e250b60941c4","fileName":"testa","weight":25},
-      {"id":"05e1af45-b7a2-417c-a43d-d1b29d6a4b15","fileName":"testb","weight":25},
-      {"id":"b6205652-b885-47b6-968b-1635d2e6dc48","fileName":"testc","weight":50}]
+  {
+    "experiment_path": "/pages",
+    "experiment_name": "Blog test 2",
+    "experiment_id": "57056b01-39bd-43c5-85e1-fba6611bb2b2",
+    "device_type": "desktop",
+    "variants": [
+      {
+        "id": "333896e0-09e7-4b29-9398-e250b60941c4",
+        "fileName": "testa",
+        "weight": 25
+      },
+      {
+        "id": "05e1af45-b7a2-417c-a43d-d1b29d6a4b15",
+        "fileName": "testb",
+        "weight": 25
+      },
+      {
+        "id": "b6205652-b885-47b6-968b-1635d2e6dc48",
+        "fileName": "testc",
+        "weight": 50
+      }
+    ]
   }
 ]
-\```
+
 
 A user can either configure a static test independent of our underlying experiment platform by adjusting weights and URLs on the static config deployed on an edge function that can run Javascript. The package will not function properly without weights summing to 100 so be sure to validate this. Verbose erroring in this case is a future roadmap feature.
 
