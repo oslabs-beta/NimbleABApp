@@ -16,6 +16,7 @@ import ExperimentDropDown from "./Unused/ExperimentDropDown";
 import ConfigureVariant from "./ConfigureVariantComponents/ConfigureVariant";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import TestConfigInstructions from "./TestConfigInstructions";
 
 interface RowProps {
   index: number;
@@ -134,9 +135,10 @@ const TestingConfig: React.FC = () => {
 
   // getVariants(experimentId);
   //use effect to listen out for updates to variant rows
-
+  // rounded-xl w-1/2 h-96 bg-slate-800 text-white p-2 flex flex-col items-center
   return (
-    <div className="h-screen w-full bg-primary flex flex-col font-mono">
+    <div className="h-screen w-full p-10 flex flex-col items-center bg-gradient-to-r from-teal-500 to-indigo-800 h-screen">
+      {" "}
       <experimentContext.Provider
         value={{
           experimentId,
@@ -147,18 +149,21 @@ const TestingConfig: React.FC = () => {
           reload: changeHandler,
         }}
       >
-        <div className="w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono">
-          {experimentName ? (
-            <p className="text-white">
-              Configuration for experiment <br></br>{" "}
-              <strong>{experimentName}</strong>
-            </p>
-          ) : (
-            "No experiment active; return to home and create new"
-          )}
-          <ConfigureVariant></ConfigureVariant>
+        <div className="flex">
+          <div className="w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono border border-gray-50 items-center bg-slate-800">
+            {experimentName ? (
+              <p className="text-white items-center">
+                Configuration for experiment <br></br>{" "}
+                <strong className="text-lg">{experimentName}</strong>
+              </p>
+            ) : (
+              "No experiment active; return to home and create new"
+            )}
+            <ConfigureVariant></ConfigureVariant>
+          </div>
+          <VariantDisplay variant={variants}></VariantDisplay>
         </div>
-        <VariantDisplay variant={variants}></VariantDisplay>
+        <TestConfigInstructions></TestConfigInstructions>
       </experimentContext.Provider>
     </div>
   );
