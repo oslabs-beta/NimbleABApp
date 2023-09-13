@@ -1,8 +1,9 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import { experimentContext } from "../TestingConfig";
 interface VariantProps {
   // deviceType: string;
   weight: number | null;
@@ -13,11 +14,13 @@ interface VariantProps {
 const SubmitVariant: React.FC<VariantProps> = (props) => {
   const [variant, updateVariant] = useState({});
 
+  // let reload
+  const { reload } = useContext(experimentContext);
+
   const location = useLocation();
+
   const submitToDB = async () => {
     const variantUuid = uuidv4();
-
-    console.log(variantUuid + " is variant uuid");
     const {
       directoryPath,
       experimentId,
@@ -39,6 +42,7 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
       };
       await window.electronAPI.addVariant(variantObj);
       console.log("variant added");
+      reload();
     } catch (error) {
       console.log("error in the Submit Variant component ", error);
     }
@@ -46,12 +50,9 @@ const SubmitVariant: React.FC<VariantProps> = (props) => {
   };
 
   return (
-    <div>
-      <button
-        onClick={submitToDB}
-        className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-      >
-        Submit Variant
+    <div className="h-3 flex">
+      <button onClick={submitToDB} className="btn btn-success m-2">
+        Add Variant
       </button>
     </div>
   );

@@ -68,16 +68,18 @@ const VariantRow: React.FC = () => {
   if (isDestroyed) return null;
 
   return (
-    <div>
+    <div className="flex flex-col items-center">
       <input
+        className="border border-grey-500"
         type="text"
-        placeholder="Variant URL"
+        placeholder="Variant File Path"
         value={thisRow.variantURL}
         onChange={handleVariantChange}
       />
       <input
+        className="border border-grey-500"
         type="number"
-        placeholder="Weight"
+        placeholder="% weight (as int)"
         value={thisRow.weight ? thisRow.weight : ""}
         onChange={handleWeightChange}
       />
@@ -87,12 +89,6 @@ const VariantRow: React.FC = () => {
         filePath={thisRow.variantURL}
         experiment_ID={experimentId}
       ></SubmitVariant>
-      <button
-        className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
-        onClick={handleDestroy}
-      >
-        Remove
-      </button>
     </div>
   );
 };

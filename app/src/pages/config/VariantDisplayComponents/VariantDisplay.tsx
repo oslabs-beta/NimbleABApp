@@ -11,6 +11,8 @@ interface VariantProps {
 const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
   const [weightsWarning, setWeightsWarning] = useState(false);
   const [variants, setDisplayVariants] = useState<Variant[]>([]);
+  const [reset, causeReset] = useState(false);
+
   let directoryPath: string = "";
   let experimentName: string = "";
   let experimentPath: string = "";
@@ -36,10 +38,7 @@ const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
   }, [variant]);
 
   return (
-    <div
-      id="variantAnchor"
-      className="bg-primary flex flex-col p-10 gap-2 font-mono"
-    >
+    <div id="variantAnchor" className="flex flex-col p-10 gap-2 font-mono">
       <h2 className="text-white">Variants</h2>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
