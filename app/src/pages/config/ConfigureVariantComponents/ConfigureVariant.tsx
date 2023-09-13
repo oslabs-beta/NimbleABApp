@@ -17,14 +17,14 @@ const ConfigureVariant = () => {
   //
   return (
     <variantContext.Provider value={variantObj}>
-      <div>
+      <div className="flex flex-col">
         <button
           onClick={() => showUnshow(!show)}
-          className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out"
+          className="btn btn-success m-2"
         >
           Configure variant
         </button>
-        {show ? <VariantRow></VariantRow> : null}
+        <VariantRow></VariantRow>
       </div>
     </variantContext.Provider>
   );
