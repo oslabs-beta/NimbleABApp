@@ -518,13 +518,13 @@ async function handleAddVariant(event, variant) {
     );
     //Creates variant in variants folder
     fs.copyFile(
-      path.join(new_directory_path, experimentPath, `page.tsx`),
+      path.join(new_directory_path, experimentPath, `page.js`),
       path.join(
         new_directory_path,
         experimentPath,
         "variants",
         `${filePath}`,
-        "page.tsx"
+        "page.js"
       ),
       (err) => console.log(err)
     );
@@ -635,7 +635,7 @@ async function handleCreateTextEditor(event, value) {
       "/variants" +
       "/" +
       filePath +
-      "/page.tsx"
+      "/page.js"
   );
 
   // const data = fs.readFileSync(filePath)
