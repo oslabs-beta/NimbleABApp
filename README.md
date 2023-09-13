@@ -49,5 +49,5 @@ For more info visit our [website](https://nimbleab.io/) or read our [Medium arti
 [SocketIO-url]: https://socket.io/
 [Electron.js]: https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white
 [Electron-url]: https://www.electronjs.org/
-[Prisma]: https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white
+[Prisma.js]: https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white
 [Prisma-url]: https://www.prisma.io/
