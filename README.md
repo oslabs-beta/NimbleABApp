@@ -22,6 +22,20 @@ For more info visit our [website](https://nimbleab.io/) or read our [Medium arti
 [Windows](https://nimbleab-production-build.s3.us-east-2.amazonaws.com/NimbleAB+Setup.exe)
 [Mac]()
 
+## Usage
+Nimble AB offers an NPM package for SSG decisioning that can be installed here (placeholder)
+
+Our Desktop app can be used for full end to end test construction and variant creation. Download link is above. Create experiments, build and edit variants, and use config files generated to your local repo on your CDN to serve pages. 
+
+## Authors
+| Developed By |                                                                     Github                                                                      |                                                                   LinkedIn                                                                    |
+| :----------: | :---------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------: |
+|  Andrew Kraus  |    [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ajkraus04)    | [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/andrewjkraus/) |
+| Zhenwei Liu | [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/lzwaaron) |  [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/zhenwei--liu/)  |
+|  James Boswell  |  [![Github](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jamesboswell1994)   |   [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/james-boswell/)    |
+
+
+
 [React.js]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
 [React-url]: https://reactjs.org/
 [TS.js]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
