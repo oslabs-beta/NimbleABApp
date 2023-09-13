@@ -78,9 +78,6 @@ Nimble Labs is proud to offer our open source Desktop app for public use. Downlo
    - Choose your project's src or app directory  
    - Once the directory is selected, then select the path that you would like to run the experiment on  
    - Press create experiment to be taken to the variants config page
--Active Experiments
-   - Visualize your active experiments in progress and the path they are deployed on
-   - Click the edit button edit existing variants on your experiment
 - Configure variants  
    - Add variants using the inputs at the top of the page. The file path will be the name of the file storing the variant, so naming in a semantically useful way is recommended.  
    - Create the weight for the variant. Many tests will be 50/50 or 33/33/34 but customize the weights as needed to achieve the randomness desired to meet business requirements.  
