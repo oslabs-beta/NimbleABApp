@@ -43,14 +43,14 @@ Open issues for any issues encountered and the team will investigate and impleme
 
 Our longer term features roadmap is as follows:
 
-# Highest priority
+Highest priority
 * Backwards compatibility to older versions of NextJs (<13.0)
 * Github deploys from the UI
 * Support for Typescript projects
 * Validation improvements on our Front End (weights validation doesn't take place currently and is on the user)
 * Project validation (provide user feedback if their project isn't NextJs validated)
 
-# Future facing
+<strong>Future facing<Strong>
 * Adding file tree into the editor 
 * CLI support for experiment maintenance
 * Verbose error handling on client
