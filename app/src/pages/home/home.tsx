@@ -15,7 +15,7 @@ const Home = (): React.JSX.Element => {
   };
   return (
     <>
-      <div className="h-screen w-full bg-primary p-10">
+      <div className="h-screen w-full bg-gradient-to-r from-teal-500 to-indigo-800  p-10">
         <div className="flex  gap-2 font-mono ">
           <ExperimentCreate></ExperimentCreate>
           <ActiveExperiment></ActiveExperiment>

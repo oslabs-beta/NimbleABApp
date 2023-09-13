@@ -150,7 +150,7 @@ const TestingConfig: React.FC = () => {
         }}
       >
         <div className="flex">
-          <div className="w-1/2 bg-primary flex flex-col p-10 gap-2 font-mono border border-gray-50 items-center bg-slate-800">
+          <div className="w-1/2 h-80 bg-primary rounded-xl flex flex-col p-10 gap-2 font-mono  items-center bg-slate-800">
             {experimentName ? (
               <p className="text-white items-center">
                 Configuration for experiment <br></br>{" "}

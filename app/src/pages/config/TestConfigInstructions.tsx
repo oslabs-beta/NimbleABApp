@@ -2,7 +2,7 @@ import React from "react";
 
 const TestConfigInstructions = (): React.JSX.Element => {
   return (
-    <div className="mx-auto rounded-xl w-full h-60 bg-slate-800 text-white p-2 flex flex-col flex-grow items-center font-mono mt-2">
+    <div className="mx-auto rounded-xl w-full bg-slate-800 text-white p-2 flex flex-col items-center font-mono mt-2">
       <h1 className="text-lg mb-2">Instructions</h1>
       <p className="mb-2">
         <strong>
