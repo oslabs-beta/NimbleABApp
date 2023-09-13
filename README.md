@@ -18,8 +18,9 @@ For more info visit our [website](https://nimbleab.io/) or read our [Medium arti
 [![Prisma][Prisma.js]][Prisma-url] [![Jest][Jest]][Jest-url] [![Tailwind][Tailwind]][Tailwind-url] [![DaisyUI][DaisyUI]][DaisyUI-url][![Electron.js][Electron.js]][Electron-url] [![AWS][AWS]][AWS-url] [![Next][Next.js]][Next-url] [![Supabase][Supabase]][Supabase-url] [![Express][Express.js]][Express-url]
 </div>
 
-
-
+## Download
+[Windows](https://nimbleab-production-build.s3.us-east-2.amazonaws.com/NimbleAB+Setup.exe)
+[Mac]()
 
 [React.js]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
 [React-url]: https://reactjs.org/
