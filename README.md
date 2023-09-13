@@ -50,12 +50,12 @@ Highest priority
 * Validation improvements on our Front End (weights validation doesn't take place currently and is on the user)
 * Project validation (provide user feedback if their project isn't NextJs validated)
 
-<strong>Future facing<Strong>
+Future facing
 * Adding file tree into the editor 
 * CLI support for experiment maintenance
 * Verbose error handling on client
 
-Contributions are appreciated and will be reviewed as fast as we are able.
+Contributions are appreciated and will be reviewed as fast as we are able. Merged contributions will be credited as authors.
 
 ## Authors
 | Developed By |                                                                     Github                                                                      |                                                                   LinkedIn                                                                    |
