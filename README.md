@@ -15,7 +15,7 @@ For more info visit our [website](https://nimbleab.io/) or read our [Medium arti
 <div align="center" width="100%">
             
 [![Typescript][TS.js]][TS-url] [![JavaScript][JavaScript]][JavaScript-url] [![React][React.js]][React-url] [![React Router][React Router]][React-Router-url] [![Node.js][Node.js]][Node-url] 
-[![Prisma][Prisma.js]][Prisma-url] [![Jest][Jest]][Jest-url] [![Tailwind][Tailwind]][Tailwind-url] [![DaisyUI][DaisyUI]][DaisyUI-url][![Electron.js][Electron.js]][Electron-url] [![AWS][AWS]][AWS-url]
+[![Prisma][Prisma.js]][Prisma-url] [![Jest][Jest]][Jest-url] [![Tailwind][Tailwind]][Tailwind-url] [![DaisyUI][DaisyUI]][DaisyUI-url][![Electron.js][Electron.js]][Electron-url] [![AWS][AWS]][AWS-url] [![Next][Next.js]][Next-url] [![Supabase][Supabase]][Supabase-url] [![Express][Express.js]][Express-url]
 </div>
 
 
@@ -51,3 +51,9 @@ For more info visit our [website](https://nimbleab.io/) or read our [Medium arti
 [Electron-url]: https://www.electronjs.org/
 [Prisma.js]: https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white
 [Prisma-url]: https://www.prisma.io/
+[Next.js]: https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white
+[Next-url]: https://nextjs.org/
+[Supabase]: https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white
+[Supabase-url]: https://supabase.com/
+[Express.js]: https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB
+[Express-url]: https://expressjs.com/
