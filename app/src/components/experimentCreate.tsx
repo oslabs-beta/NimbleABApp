@@ -29,7 +29,7 @@ const ExperimentCreate = (): React.JSX.Element => {
   //The experiment ID
   const [experimentId, setExperimentId] = useState(uuidv4());
   //The Repo ID
-  const [repoId, setRepoId] = useState('');
+  const [repoId, setRepoId] = useState<any>();
   //Error Message State
   const [error, setError] = useState(false)
   //Error Didnt Select a Repo
@@ -40,6 +40,7 @@ const ExperimentCreate = (): React.JSX.Element => {
     const repo_data = await window.electronAPI.addRepo({
       FilePath: fullFilePath,
     });
+    console.log(repo_data)
     const { id } = repo_data;
     // const id = "2"
     setRepoId(id);

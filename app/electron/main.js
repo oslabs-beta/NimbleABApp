@@ -400,14 +400,14 @@ async function handleAddExperiment(event, experiment) {
 
     //copies middleware file into new directory
     fs.copyFile(
-      path.join(__dirname, "../templates/middleware.ts"),
+      path.join(__dirname, "./templates/middleware.ts"),
       path.join(directory_path, `middleware.ts`),
       fs.constants.COPYFILE_EXCL,
       (err) => console.log(err)
     );
 
     fs.copyFile(
-      path.join(__dirname, "../templates/nimble.config.json"),
+      path.join(__dirname, "./templates/nimble.config.json"),
       path.join(directory_path, "nimble.config.json"),
       fs.constants.COPYFILE_EXCL,
       (err) => console.log(err)
@@ -419,7 +419,6 @@ async function handleAddExperiment(event, experiment) {
     );
 
     const parsed_data = JSON.parse(data);
-
     const paths = parsed_data.map((el) => el.experiment_path);
     console.log(paths);
     if (!paths.includes(experiment_path)) {
@@ -456,6 +455,7 @@ async function handleAddExperiment(event, experiment) {
       path.join(directory_path, "nimble.config.json"),
       JSON.stringify(parsed_data)
     );
+
 
     console.log("New experiment created");
   } catch (error) {
@@ -616,6 +616,7 @@ async function handleAddRepo(event, repo) {
     return data;
   } catch (err) {
     console.log(err);
+    return err
   }
 }
 
