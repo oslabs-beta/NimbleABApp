@@ -38,41 +38,41 @@ const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
   }, [variant]);
 
   return (
-    <div id="variantAnchor" className="flex flex-col p-10 gap-2 font-mono">
-      <h2 className="text-white">Variants</h2>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+    <div id="variantAnchor" className="h-80  rounded-xl w-1/2 flex flex-col ml-20 bg-slate-800 font-mono overflow-auto">
+      {/* <h2 className="text-white">Variants</h2> */}
+      <table className="min-w-full divide-y divide-gray-200 overflow-auto">
+        <thead className="bg-slate-800 relative top-0 sticky">
           <tr>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              className="px-6 py-3 text-center text-xs font-medium text-white uppercase"
             >
-              File Path
+              Variants
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              className="px-6 py-3 text-center text-xs font-medium text-white uppercase"
             >
               Weight
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              className="px-6 py-3 text-center text-xs font-medium text-white uppercase"
             >
               Edit
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              className="px-6 py-3 text-center text-xs font-medium text-white uppercase"
             >
               Delete
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="text-white text-center bg-slate-800 divide-y divide-gray-200/50 overflow-auto">
           {variants.map((variant, index) => (
-            <tr key={index}>
-              <td>{variant.filePath}</td>
+            <tr key={index} className="h-16 overflow-auto">
+              <td >{variant.filePath}</td>
               <td>{variant.weight}</td>
               <td>
                 <CreateVariant
@@ -90,8 +90,8 @@ const VariantDisplay: React.FC<VariantProps> = ({ variant }) => {
         </tbody>
       </table>
       {weightsWarning ? (
-        <div className="text-white">
-          <p className="text-red">
+        <div className="text-white text-center bg-slate-800">
+          <p className="text-error">
             Warning - weights must sum to 100 for experiment to be valid
           </p>
         </div>

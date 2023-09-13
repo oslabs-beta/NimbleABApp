@@ -41,6 +41,7 @@ const ExperimentCreate = (): React.JSX.Element => {
       FilePath: fullFilePath,
     });
     const { id } = repo_data;
+    // const id = "2"
     setRepoId(id);
     const data = await window.electronAPI.addExperiment({
       Experiment_name: experimentName,
