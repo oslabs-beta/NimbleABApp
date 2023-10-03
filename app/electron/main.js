@@ -390,6 +390,7 @@ async function handleAddExperiment(event, experiment) {
   } = experiment;
   let new_directory_path = directory_path;
   console.log("basename", path.basename(directory_path));
+  //Generalize this 
   if (path.basename(directory_path) === "src") new_directory_path += "/app";
   try {
     //Creates a variants folder in the experiment path
