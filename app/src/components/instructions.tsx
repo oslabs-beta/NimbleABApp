@@ -3,7 +3,7 @@ import React from 'react';
 
 const Instructions = (): React.JSX.Element => {
  
-
+//Make this more robust
   return (
     <div className="mx-auto rounded-xl w-full h-60 bg-slate-800 text-white p-2 flex flex-col items-center font-mono mt-2">
       <h1 className="text-lg mb-2">Instructions</h1>
